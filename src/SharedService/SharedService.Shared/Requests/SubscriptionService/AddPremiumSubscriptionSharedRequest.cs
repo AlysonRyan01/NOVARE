@@ -1,0 +1,3 @@
+namespace SharedService.Shared.Requests.SubscriptionService;
+
+public record AddPremiumSubscriptionSharedRequest(Guid EnterpriseId);
