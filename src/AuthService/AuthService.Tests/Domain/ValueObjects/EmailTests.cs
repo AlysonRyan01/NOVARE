@@ -25,7 +25,7 @@ public class EmailTests
             var result = Email.Create(email!);
 
             Assert.IsFalse(result.IsSuccess);
-            Assert.AreEqual("Forneça um email válido", result.Error);
+            Assert.AreEqual("Forneça um email válido", result.Errors!.FirstOrDefault());
         }
 
         [TestMethod]
@@ -34,7 +34,7 @@ public class EmailTests
             var result = Email.Create("");
 
             Assert.IsFalse(result.IsSuccess);
-            Assert.AreEqual("Forneça um email válido", result.Error);
+            Assert.AreEqual("Forneça um email válido", result.Errors!.FirstOrDefault());
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ public class EmailTests
             var result = Email.Create("   ");
 
             Assert.IsFalse(result.IsSuccess);
-            Assert.AreEqual("Forneça um email válido", result.Error);
+            Assert.AreEqual("Forneça um email válido", result.Errors!.FirstOrDefault());
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ public class EmailTests
             var result = Email.Create(emailInvalido);
 
             Assert.IsFalse(result.IsSuccess);
-            Assert.AreEqual("Forneça um email válido", result.Error);
+            Assert.AreEqual("Forneça um email válido", result.Errors!.FirstOrDefault());
         }
 
         [TestMethod]

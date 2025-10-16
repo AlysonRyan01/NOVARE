@@ -25,7 +25,7 @@ public class PasswordHashTests
         var result = PasswordHash.Create(senha);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("A senha deve ser informada", result.Error);
+        Assert.AreEqual("A senha deve ser informada", result.Errors!.FirstOrDefault());
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class PasswordHashTests
         var result = PasswordHash.Create(senha!);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("A senha deve ser informada", result.Error);
+        Assert.AreEqual("A senha deve ser informada", result.Errors!.FirstOrDefault());
     }
 
     [TestMethod]
@@ -47,6 +47,6 @@ public class PasswordHashTests
         var result = PasswordHash.Create(senha);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("A senha deve ser informada", result.Error);
+        Assert.AreEqual("A senha deve ser informada", result.Errors!.FirstOrDefault());
     }
 }

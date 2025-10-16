@@ -25,7 +25,7 @@ public class NameTests
         var result = Name.Create(nome);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("A empresa precisa ter um nome", result.Error);
+        Assert.AreEqual("Adicione um nome válido", result.Errors!.FirstOrDefault());
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class NameTests
         var result = Name.Create(nome!);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("A empresa precisa ter um nome", result.Error);
+        Assert.AreEqual("Adicione um nome válido", result.Errors!.FirstOrDefault());
     }
 
     [TestMethod]
@@ -47,6 +47,6 @@ public class NameTests
         var result = Name.Create(nome);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("A empresa precisa ter um nome", result.Error);
+        Assert.AreEqual("Adicione um nome válido", result.Errors!.FirstOrDefault());
     }
 }

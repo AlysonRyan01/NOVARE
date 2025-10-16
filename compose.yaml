@@ -1,0 +1,39 @@
+﻿services:
+  authservice.api:
+    image: authservice.api
+    build:
+      context: .
+      dockerfile: src/AuthService/AuthService.Api/Dockerfile.dev
+    ports:
+      - "5001:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=${AUTH_DEFAULT_CONNECTION}
+      - JwtBearerSettings__SecretKey=${AUTH_JWT_SECRET_KEY}
+      - Cors__PolicyName=${AUTH_CORS_POLICYNAME}
+      - Cors__Origins=${AUTH_CORS_ORIGINS}
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      authservice.db:
+          condition: service_healthy
+      
+      
+  authservice.db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+    ports:
+      - "${AUTH_POSTGRES_PORT}:5432"
+    volumes:
+      - authpgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+volumes:
+  authpgdata:

@@ -25,7 +25,7 @@ public class UserQueryRepository : IUserQueryRepository
             .FirstOrDefaultAsync(x => x.Id == id);
         
         if (user == null)
-            return Result<User?>.Fail("Usuário nao encontrado");
+            return Result<User?>.Fail(["Usuário nao encontrado"]);
         
         return Result<User?>.Ok(user);
     }
@@ -33,7 +33,7 @@ public class UserQueryRepository : IUserQueryRepository
     public async Task<Result<User?>> GetByEmailAsync(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
-            return Result<User?>.Fail("E-mail inválido");
+            return Result<User?>.Fail(["E-mail inválido"]);
 
         var normalizedEmail = email.Trim().ToLower();
 
@@ -44,7 +44,7 @@ public class UserQueryRepository : IUserQueryRepository
             .FirstOrDefaultAsync(x => x.Email.Value.ToLower() == normalizedEmail);
 
         if (user == null)
-            return Result<User?>.Fail("Usuário nao encontrado");
+            return Result<User?>.Fail(["Usuário nao encontrado"]);
 
         return Result<User?>.Ok(user);
     }
@@ -58,7 +58,7 @@ public class UserQueryRepository : IUserQueryRepository
             .FirstOrDefaultAsync(x => x.Id == id);
         
         if (user == null)
-            return Result<IEnumerable<Role>>.Fail("Usuário nao encontrado");
+            return Result<IEnumerable<Role>>.Fail(["Usuário nao encontrado"]);
         
         return Result<IEnumerable<Role>>.Ok(user.Roles);
     }

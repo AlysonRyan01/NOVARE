@@ -16,7 +16,7 @@ public class Role : ValueObject
     public static Result<Role> Create(string roleName, DateTime? validUntil = null)
     {
         if (string.IsNullOrWhiteSpace(roleName))
-            return Result<Role>.Fail("O nome da role é necessária");
+            return Result<Role>.Fail(["O nome da role é necessária"]);
         
         var role = new Role(roleName, validUntil);
 

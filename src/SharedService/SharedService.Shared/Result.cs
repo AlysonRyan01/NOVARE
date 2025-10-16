@@ -4,19 +4,19 @@ public class Result<T>
 {
     public bool IsSuccess { get; private set; }
     public T? Value { get; private set; }
-    public IEnumerable<string>? Error { get; private set; } = new List<string>();
+    public IEnumerable<string>? Errors { get; private set; }
     
     private Result(T value)
     {
         IsSuccess = true;
         Value = value;
-        Error = null;
+        Errors = null;
     }
 
     private Result(IEnumerable<string> errors)
     {
         IsSuccess = false;
-        Error = errors;
+        Errors = errors;
         Value = default;
     }
 

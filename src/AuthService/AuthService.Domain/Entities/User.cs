@@ -14,12 +14,10 @@ public class User : Entity
     protected User() { }
 
     private User(
-        Name name,
         Email email,
         PasswordHash password,
         IEnumerable<Role>? roles = null)
     {
-        Name = name;
         Email = email;
         Password = password;
         if (roles != null)
@@ -27,30 +25,31 @@ public class User : Entity
     }
     
     public static Result<User> Create(
-        string name,
         string email,
         string passwordHash,
         IEnumerable<Role>? roles = null)
     {
-        var nameResult = Name.Create(name);
-        if (!nameResult.IsSuccess)
-            return Result<User>.Fail(nameResult.Error!);
-
         var emailResult = Email.Create(email);
         if (!emailResult.IsSuccess)
-            return Result<User>.Fail(emailResult.Error!);
+            return Result<User>.Fail(emailResult.Errors!);
 
         var passwordResult = PasswordHash.Create(passwordHash);
         if (!passwordResult.IsSuccess)
-            return Result<User>.Fail(passwordResult.Error!);
+            return Result<User>.Fail(passwordResult.Errors!);
         
         var user = new User(
-            nameResult.Value!,
             emailResult.Value!,
             passwordResult.Value!,
             roles
         );
 
         return Result<User>.Ok(user);
+    }
+
+    public Result<User> SetName(Name name)
+    {
+        Name = name;
+        
+        return Result<User>.Ok(this);
     }
 }

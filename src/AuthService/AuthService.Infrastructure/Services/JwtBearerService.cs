@@ -50,7 +50,7 @@ public class JwtBearerService : IJwtBearerService
         var ci = new ClaimsIdentity();
         
         ci.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-        ci.AddClaim(new Claim(ClaimTypes.Name, $"{user.Name.Value}"));
+        ci.AddClaim(new Claim(ClaimTypes.Name, $"{user.Name?.Value}"));
         ci.AddClaim(new Claim(ClaimTypes.Email, user.Email.Value));
 
         foreach (var role in user.Roles.Where(x => x.IsActive()))
@@ -59,37 +59,5 @@ public class JwtBearerService : IJwtBearerService
         }
         
         return Task.FromResult(ci);
-    }
-
-    public async Task<bool> ValidateToken(string token)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-            return false;
-        
-        var secret = _configuration["JwtBearerSettings:SecretKey"]!;
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(secret);
-
-        try
-        {
-            await Task.Run(() =>
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
-            });
-
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

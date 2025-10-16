@@ -1,4 +1,5 @@
 using AuthService.Application.Services;
+using AuthService.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -6,11 +7,11 @@ namespace AuthService.Infrastructure.Services;
 
 public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 {
-    private readonly DbContext _context;
+    private readonly ApplicationDataContext _context;
     private IDbContextTransaction? _transaction;
     private bool _disposed;
 
-    public UnitOfWork(DbContext context)
+    public UnitOfWork(ApplicationDataContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }

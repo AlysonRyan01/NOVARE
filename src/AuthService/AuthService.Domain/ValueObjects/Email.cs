@@ -15,7 +15,7 @@ public class Email : ValueObject
     public static Result<Email> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || !EmailRegex.IsMatch(value))
-            return Result<Email>.Fail("Forneça um email válido");
+            return Result<Email>.Fail(["Forneça um email válido"]);
 
         var email = new Email(value);
         

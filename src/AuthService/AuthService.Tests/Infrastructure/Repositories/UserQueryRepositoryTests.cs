@@ -27,7 +27,7 @@ public class UserQueryRepositoryTests
     {
         SetupInMemoryDb();
 
-        var enterprise = User.Create("Empresa A", "email@a.com", "Senha123").Value!;
+        var enterprise = User.Create("email@a.com", "Senha123").Value!;
         await _context.Users.AddAsync(enterprise);
         await _context.SaveChangesAsync();
         
@@ -35,7 +35,6 @@ public class UserQueryRepositoryTests
         
         Assert.IsTrue(result.IsSuccess);
         Assert.IsNotNull(result.Value);
-        Assert.AreEqual("Empresa A", result.Value!.Name.Value);
     }
 
     [TestMethod]
@@ -47,7 +46,7 @@ public class UserQueryRepositoryTests
         var result = await _repository.GetByIdAsync(nonExistentId);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("Usuário nao encontrado", result.Error);
+        Assert.AreEqual("Usuário nao encontrado", result.Errors!.FirstOrDefault());
     }
 
     [TestMethod]
@@ -55,7 +54,7 @@ public class UserQueryRepositoryTests
     {
         SetupInMemoryDb();
 
-        var enterprise = User.Create("Empresa B", "email@b.com", "Senha123").Value!;
+        var enterprise = User.Create("email@b.com", "Senha123").Value!;
         await _context.Users.AddAsync(enterprise);
         await _context.SaveChangesAsync();
         
@@ -74,7 +73,7 @@ public class UserQueryRepositoryTests
         var result = await _repository.GetByEmailAsync("notfound@email.com");
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("Usuário nao encontrado", result.Error);
+        Assert.AreEqual("Usuário nao encontrado", result.Errors!.FirstOrDefault());
     }
 
     [TestMethod]
@@ -86,7 +85,7 @@ public class UserQueryRepositoryTests
         var role2 = Role.Create("User").Value!;
         var roles = new[] { role1, role2 };
 
-        var enterprise = User.Create("Empresa C", "email@c.com", "Senha123", roles).Value!;
+        var enterprise = User.Create("email@c.com", "Senha123", roles).Value!;
         await _context.Users.AddAsync(enterprise);
         await _context.SaveChangesAsync();
         
@@ -107,6 +106,6 @@ public class UserQueryRepositoryTests
         var result = await _repository.GetRolesAsync(nonExistentId);
         
         Assert.IsFalse(result.IsSuccess);
-        Assert.AreEqual("Usuário nao encontrado", result.Error);
+        Assert.AreEqual("Usuário nao encontrado", result.Errors!.FirstOrDefault());
     }
 }

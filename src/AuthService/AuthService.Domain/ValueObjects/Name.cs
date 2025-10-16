@@ -14,7 +14,7 @@ public class Name
     public static Result<Name> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return Result<Name>.Fail("A empresa precisa ter um nome");
+            return Result<Name>.Fail(["Adicione um nome válido"]);
 
         var name = new Name(value);
         

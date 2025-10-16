@@ -14,7 +14,7 @@ public class PasswordHash : ValueObject
     public static Result<PasswordHash> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return Result<PasswordHash>.Fail("A senha deve ser informada");
+            return Result<PasswordHash>.Fail(["A senha deve ser informada"]);
 
         var password = new PasswordHash(value);
         

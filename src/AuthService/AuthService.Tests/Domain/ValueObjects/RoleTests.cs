@@ -23,13 +23,13 @@ public class RoleTests
             var result3 = Role.Create("   ");
 
             Assert.IsFalse(result1.IsSuccess);
-            Assert.AreEqual("O nome da role é necessária", result1.Error);
+            Assert.AreEqual("O nome da role é necessária", result1.Errors!.FirstOrDefault());
 
             Assert.IsFalse(result2.IsSuccess);
-            Assert.AreEqual("O nome da role é necessária", result2.Error);
+            Assert.AreEqual("O nome da role é necessária", result2.Errors!.FirstOrDefault());
 
             Assert.IsFalse(result3.IsSuccess);
-            Assert.AreEqual("O nome da role é necessária", result3.Error);
+            Assert.AreEqual("O nome da role é necessária", result3.Errors!.FirstOrDefault());
         }
 
         [TestMethod]

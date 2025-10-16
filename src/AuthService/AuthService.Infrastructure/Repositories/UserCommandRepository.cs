@@ -18,7 +18,6 @@ public class UserCommandRepository : IUserCommandRepository
     public async Task<Result<User?>> AddAsync(User user)
     {
         await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
         
         return Result<User?>.Ok(user);
     }
