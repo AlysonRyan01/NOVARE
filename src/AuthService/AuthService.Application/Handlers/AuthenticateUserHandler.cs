@@ -37,7 +37,7 @@ public class AuthenticateUserHandler : IRequestHandler<AuthenticateUserCommand, 
         AuthenticateUserCommand request, 
         CancellationToken cancellationToken = default)
     {
-        var validationResult = _validator.Validate(request);
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if  (!validationResult.IsValid)
             return Result<string>.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
 

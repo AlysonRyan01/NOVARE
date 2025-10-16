@@ -26,17 +26,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProductService", "ProductService", "{F34E43FA-627A-8966-7BCB-0DBE3D5440B1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StockService", "StockService", "{F34E43FA-627A-8966-7BCB-0DBE3D5440B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Api", "src\ProductService\ProductService.Api\ProductService.Api.csproj", "{B504718A-5598-403A-8D1A-1B04DC37F37D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Api", "src\ProductService\StockService.Api\StockService.Api.csproj", "{B504718A-5598-403A-8D1A-1B04DC37F37D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Application", "src\ProductService\ProductService.Application\ProductService.Application.csproj", "{0F4D2113-E05A-4E71-9C4B-6445A477138D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Application", "src\ProductService\StockService.Application\StockService.Application.csproj", "{0F4D2113-E05A-4E71-9C4B-6445A477138D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Domain", "src\ProductService\ProductService.Domain\ProductService.Domain.csproj", "{D86165FE-60E5-423E-A851-FF892B711577}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Domain", "src\ProductService\StockService.Domain\StockService.Domain.csproj", "{D86165FE-60E5-423E-A851-FF892B711577}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Infrastructure", "src\ProductService\ProductService.Infrastructure\ProductService.Infrastructure.csproj", "{B032529D-E764-487C-9681-6BC5566AF495}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Infrastructure", "src\ProductService\StockService.Infrastructure\StockService.Infrastructure.csproj", "{B032529D-E764-487C-9681-6BC5566AF495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Tests", "src\ProductService\ProductService.Tests\ProductService.Tests.csproj", "{6DF3FAB5-CF5F-455E-84DE-DCE95340DFAB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Tests", "src\ProductService\StockService.Tests\StockService.Tests.csproj", "{6DF3FAB5-CF5F-455E-84DE-DCE95340DFAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
