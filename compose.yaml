@@ -34,6 +34,66 @@
       interval: 5s
       timeout: 5s
       retries: 5
+
+  stockservice.api:
+    image: stockservice.api
+    build:
+      context: .
+      dockerfile: src/StockService/StockService.Api/Dockerfile.dev
+    ports:
+      - "5002:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=${STOCK_DEFAULT_CONNECTION}
+      - Cors__PolicyName=${STOCK_CORS_POLICYNAME}
+      - Cors__Origins=${STOCK_CORS_ORIGINS}
+      - RabbitMqSettings__ConnectionString=rabbitmq://rabbitmq:5672
+      - RabbitMqSettings__User=${RABBITMQ_USER}
+      - RabbitMqSettings__Password=${RABBITMQ_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      stockservice.db:
+          condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  stockservice.db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${STOCK_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${STOCK_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${STOCK_POSTGRES_DB}
+    ports:
+      - "${STOCK_POSTGRES_PORT}:5432"
+    volumes:
+      - stockpgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${STOCK_POSTGRES_USER} -d ${STOCK_POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+
       
 volumes:
   authpgdata:
+  stockpgdata:
+  rabbitmqdata:

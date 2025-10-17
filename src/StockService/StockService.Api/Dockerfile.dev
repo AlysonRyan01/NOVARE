@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+WORKDIR /app
+
+COPY ["src/StockService/StockService.Api/StockService.Api.csproj", "src/StockService/StockService.Api/"]
+COPY ["src/SharedService/SharedService.Shared/SharedService.Shared.csproj", "src/SharedService/SharedService.Shared/"]
+COPY ["src/StockService/StockService.Application/StockService.Application.csproj", "src/StockService/StockService.Application/"]
+COPY ["src/StockService/StockService.Domain/StockService.Domain.csproj", "src/StockService/StockService.Domain/"]
+COPY ["src/StockService/StockService.Infrastructure/StockService.Infrastructure.csproj", "src/StockService/StockService.Infrastructure/"]
+
+RUN dotnet restore "src/StockService/StockService.Api/StockService.Api.csproj"
+
+COPY . .
+
+WORKDIR "/app/src/StockService/StockService.Api"
+
+RUN dotnet build "StockService.Api.csproj" -c Debug
+
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet", "run", "--urls", "http://0.0.0.0:5000"]
+
