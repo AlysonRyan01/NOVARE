@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ProductService.Application.Mappers;
 using SharedService.Shared;
+using SharedService.Shared.Dtos;
 using StockService.Application.Commands;
 using StockService.Application.Queries;
 
@@ -21,9 +23,12 @@ public static class ProductEndpoints
                 var query = new GetAllQuery(pageNumber, pageSize);
                 var result = await mediator.Send(query);
 
-                return result.IsSuccess
-                    ? Results.Ok(result)
-                    : Results.BadRequest(result);
+                if (!result.IsSuccess || result.Value == null)
+                    return Results.BadRequest(result);
+                
+                var dtos = ProductMapper.ToDto(result.Value);
+
+                return Results.Ok(Result<IEnumerable<ProductDto>>.Ok(dtos));
             })
             .WithName("GetAllProducts")
             .WithSummary("Get all products with pagination")
@@ -33,10 +38,13 @@ public static class ProductEndpoints
             {
                 var query = new GetByIdQuery(id);
                 var result = await mediator.Send(query);
+                
+                if (!result.IsSuccess || result.Value == null)
+                    return Results.BadRequest(result);
+                
+                var dtos = ProductMapper.ToDto(result.Value);
 
-                return result.IsSuccess
-                    ? Results.Ok(result)
-                    : Results.BadRequest(result);
+                return Results.Ok(Result<ProductDto>.Ok(dtos));
             })
             .WithName("GetProductById")
             .WithSummary("Get product by ID")
@@ -45,10 +53,13 @@ public static class ProductEndpoints
         productGroup.MapPost("/", async (IMediator mediator, CreateProductCommand command) =>
             {
                 var result = await mediator.Send(command);
+                
+                if (!result.IsSuccess || result.Value == null)
+                    return Results.BadRequest(result);
+                
+                var dtos = ProductMapper.ToDto(result.Value);
 
-                return result.IsSuccess
-                    ? Results.Ok(result)
-                    : Results.BadRequest(result);
+                return Results.Ok(Result<ProductDto>.Ok(dtos));
             })
             .WithName("CreateProduct")
             .WithSummary("Create a new product")
@@ -61,9 +72,12 @@ public static class ProductEndpoints
 
                 var result = await mediator.Send(command);
 
-                return result.IsSuccess
-                    ? Results.Ok(result)
-                    : Results.BadRequest(result);
+                if (!result.IsSuccess || result.Value == null)
+                    return Results.BadRequest(result);
+                
+                var dtos = ProductMapper.ToDto(result.Value);
+
+                return Results.Ok(Result<ProductDto>.Ok(dtos));
             })
             .WithName("UpdateProduct")
             .WithSummary("Update an existing product")
@@ -82,7 +96,7 @@ public static class ProductEndpoints
             .WithSummary("Delete a product")
             .WithDescription("Delete a specific product by its unique identifier");
 
-        productGroup.MapPost("/{id:guid}/increase-stock",
+        productGroup.MapPatch("/{id:guid}/increase-stock",
                 async (IMediator mediator, Guid id, IncreaseStockCommand command) =>
                 {
                     if (id != command.ProductId)
@@ -90,15 +104,18 @@ public static class ProductEndpoints
 
                     var result = await mediator.Send(command);
 
-                    return result.IsSuccess
-                        ? Results.Ok(result)
-                        : Results.BadRequest(result);
+                    if (!result.IsSuccess || result.Value == null)
+                        return Results.BadRequest(result);
+                
+                    var dtos = ProductMapper.ToDto(result.Value);
+
+                    return Results.Ok(Result<ProductDto>.Ok(dtos));
                 })
             .WithName("IncreaseStock")
             .WithSummary("Increase product stock")
             .WithDescription("Increase the stock quantity of a specific product");
 
-        productGroup.MapPost("/{id:guid}/decrease-stock",
+        productGroup.MapPatch("/{id:guid}/decrease-stock",
                 async (IMediator mediator, Guid id, DecreaseStockCommand command) =>
                 {
                     if (id != command.ProductId)
@@ -106,9 +123,12 @@ public static class ProductEndpoints
 
                     var result = await mediator.Send(command);
 
-                    return result.IsSuccess
-                        ? Results.Ok(result)
-                        : Results.BadRequest(result);
+                    if (!result.IsSuccess || result.Value == null)
+                        return Results.BadRequest(result);
+                
+                    var dtos = ProductMapper.ToDto(result.Value);
+
+                    return Results.Ok(Result<ProductDto>.Ok(dtos));
                 })
             .WithName("DecreaseStock")
             .WithSummary("Decrease product stock")

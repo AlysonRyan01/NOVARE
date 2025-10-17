@@ -1,6 +1,7 @@
 using StockService.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAuthentication();
 builder.AddPostgreSql();
 builder.AddDependencies();
 builder.AddMediatR();
@@ -11,9 +12,10 @@ builder.AddCorsConfiguration();
 builder.AddSwagger();
 
 var app = builder.Build();
-app.ApplyMigrations();
 app.AddExceptionsMiddleware();
+app.ApplyMigrations();
 app.AddCorsPolicy(builder);
+app.AddAuthentication();
 app.MapEndpoints();
 app.AddSwagger();
 

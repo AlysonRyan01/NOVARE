@@ -1,6 +1,9 @@
+using System.Text;
 using FluentValidation;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProductService.Application.Consumers;
 using ProductService.Application.Interfaces;
@@ -28,6 +31,26 @@ public static class BuilderExtensions
             options.UseNpgsql(connectionString,
                 b => b.MigrationsAssembly("StockService.Infrastructure"))
         );
+    }
+
+    public static void AddAuthentication(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero 
+                };
+            });
+
+        builder.Services.AddAuthorization();
     }
 
     public static void AddRabbitMq(this WebApplicationBuilder builder)

@@ -5,5 +5,5 @@ namespace StockService.Application.Services;
 
 public interface IStockReservationService
 {
-    Task<Result<string>> VerifyAndReserveStockAsync(Guid invoiceId, IEnumerable<InvoiceItem> items);
+    Task<Result<string>> VerifyAndReserveStockAsync(Guid invoiceId, IEnumerable<InvoiceItemRequest> items);
 }

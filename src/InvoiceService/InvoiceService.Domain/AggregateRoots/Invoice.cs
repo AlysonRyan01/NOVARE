@@ -22,7 +22,7 @@ public class Invoice : AggregateRoot
     public decimal Total => Items.Sum(x => x.TotalPrice);
     public DateTime CreatedAt { get; internal set; }
     public DateTime? PrintedAt { get; internal set; }
-    private IInvoiceState _state = null!;
+    private IInvoiceState _state = new PendingState();
     
     public List<string> Errors { get; private set; } = new ();
     
@@ -39,7 +39,6 @@ public class Invoice : AggregateRoot
         Status = EInvoiceStatus.Pending;
         CustomerId = customerId;
         CreatedAt = DateTime.Now;
-        _state = new PendingState();
     }
 
     internal void ChangeState(IInvoiceState newState) => _state = newState;
@@ -84,16 +83,32 @@ public class Invoice : AggregateRoot
 
     public Result<Invoice> Update(Guid customerId, List<InvoiceItem> items)
     {
+        var errors = new List<string>();
+    
         if (customerId == Guid.Empty)
-            return Result<Invoice>.Fail(["A nota fiscal deve ter um cliente válido"]);
-        
-        if (!items.Any())
-            return Result<Invoice>.Fail(["A nota fiscal deve ter pelo menos um produto"]);
-        
+            errors.Add("A nota fiscal deve ter um cliente válido");
+    
+        if (items.Any() != true)
+            errors.Add("A nota fiscal deve ter pelo menos um produto");
+    
+        if (errors.Any())
+            return Result<Invoice>.Fail(errors);
+    
         CustomerId = customerId;
         Items = items;
 
         return Result<Invoice>.Ok(this);
     }
     
+    public void RebuildState()
+    {
+        _state = Status switch
+        {
+            EInvoiceStatus.Pending => new PendingState(),
+            EInvoiceStatus.ValidationRequested => new ValidationRequestedState(),
+            EInvoiceStatus.OutOfStock => new OutOfStockState(),
+            EInvoiceStatus.Printed => new PrintedState(),
+            _ => new PendingState()
+        };
+    }
 }

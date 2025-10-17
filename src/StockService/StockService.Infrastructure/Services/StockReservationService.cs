@@ -21,7 +21,7 @@ public class StockReservationService : IStockReservationService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<string>> VerifyAndReserveStockAsync(Guid invoiceId, IEnumerable<InvoiceItem> items)
+    public async Task<Result<string>> VerifyAndReserveStockAsync(Guid invoiceId, IEnumerable<InvoiceItemRequest> items)
     {
         var errors = new List<string>();
 
