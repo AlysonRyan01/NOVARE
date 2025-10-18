@@ -4,5 +4,4 @@ public record InvoiceItemDto(
     Guid ProductId,
     string ProductName,
     int Quantity,
-    decimal UnitPrice,
-    decimal TotalPrice);
+    decimal UnitPrice);

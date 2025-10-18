@@ -1,0 +1,201 @@
+<div class="customer-container">
+  <div class="header-section">
+    <h2 class="page-title">
+      <i class="icon-package"></i>
+      Gerenciar Estoque
+    </h2>
+    <p class="page-subtitle">Controle de produtos e quantidade em estoque</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="icon-plus"></i>
+        Novo Produto
+      </h3>
+    </div>
+    <form class="customer-form" (ngSubmit)="createProduct()">
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="name">Nome do Produto *</label>
+          <input type="text" id="name" placeholder="Digite o nome do produto"
+                 [(ngModel)]="newProduct.name" name="name" required />
+          <i class="input-icon icon-package"></i>
+        </div>
+
+        <div class="input-group">
+          <label for="description">Descrição</label>
+          <input type="text" id="description" placeholder="Descrição do produto"
+                 [(ngModel)]="newProduct.description" name="description" />
+          <i class="input-icon icon-file-text"></i>
+        </div>
+
+        <div class="input-group">
+          <label for="price">Preço (R$)</label>
+          <input type="number" id="price" placeholder="0.00" step="0.01" min="0"
+                 [(ngModel)]="newProduct.price" name="price" />
+          <i class="input-icon icon-dollar"></i>
+        </div>
+
+        <div class="input-group">
+          <label for="quantity">Quantidade Inicial</label>
+          <input type="number" id="quantity" placeholder="0" min="0"
+                 [(ngModel)]="newProduct.quantity" name="quantity" />
+          <i class="input-icon icon-box"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <i class="icon-check"></i>
+        Adicionar Produto
+      </button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="icon-list"></i>
+        Lista de Produtos
+        <span class="badge">{{ products.length }}</span>
+      </h3>
+
+      <div class="stock-actions">
+        <button class="action-btn increase-btn" (click)="showIncreaseStockModal()">
+          <i class="icon-arrow-up"></i>
+          Entrada Estoque
+        </button>
+        <button class="action-btn decrease-btn" (click)="showDecreaseStockModal()">
+          <i class="icon-arrow-down"></i>
+          Saída Estoque
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="customer-table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products" class="table-row">
+            <td class="customer-name">
+              <i class="icon-package"></i>
+              <div class="product-info">
+                <strong>{{ product.name }}</strong>
+              </div>
+            </td>
+            <td>{{ product.description || '—' }}</td>
+            <td class="price">{{ product.price | currency:'BRL' }}</td>
+            <td>
+              <span class="stock-quantity" [class.low-stock]="isLowStock(product)"
+                    [class.out-of-stock]="isOutOfStock(product)">
+                {{ product.stockQuantity }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge"
+                    [class.in-stock]="!isLowStock(product) && !isOutOfStock(product)"
+                    [class.low-stock]="isLowStock(product) && !isOutOfStock(product)"
+                    [class.out-of-stock]="isOutOfStock(product)">
+                {{ getStockStatus(product) }}
+              </span>
+            </td>
+            <td class="actions">
+              <button class="btn-edit" (click)="editProduct(product)" title="Editar">
+                <i class="icon-edit"></i>
+              </button>
+              <button class="btn-delete" (click)="deleteProduct(product.id)" title="Excluir">
+                <i class="icon-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="products.length === 0" class="empty-state">
+            <td colspan="6">
+              <i class="icon-package"></i>
+              <p>Nenhum produto cadastrado</p>
+              <small>Adicione um produto usando o formulário acima</small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para entrada/saída de estoque -->
+<div class="modal" *ngIf="showStockModal">
+  <div class="modal-content">
+    <h3>{{ stockModalType === 'increase' ? 'Entrada' : 'Saída' }} de Estoque</h3>
+
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Produto</label>
+        <select [(ngModel)]="selectedProductId" class="modal-select">
+          <option value="">Selecione um produto</option>
+          <option *ngFor="let product of products" [value]="product.id">
+            {{ product.name }} (Estoque: {{ product.stockQuantity }})
+          </option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Quantidade</label>
+        <input type="number" [(ngModel)]="stockQuantity" min="1"
+               [placeholder]="stockModalType === 'increase' ? 'Quantidade a adicionar' : 'Quantidade a remover'" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="closeStockModal()">Cancelar</button>
+      <button class="btn-confirm"
+              [class.increase-btn]="stockModalType === 'increase'"
+              [class.decrease-btn]="stockModalType === 'decrease'"
+              (click)="processStockOperation()"
+              [disabled]="!selectedProductId || !stockQuantity">
+        Confirmar {{ stockModalType === 'increase' ? 'Entrada' : 'Saída' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar produto -->
+<div class="modal" *ngIf="showEditModal">
+  <div class="modal-content">
+    <h3>Editar Produto</h3>
+
+    <div class="modal-body">
+      <div class="input-group">
+        <label for="editName">Nome do Produto *</label>
+        <input type="text" id="editName" [(ngModel)]="editingProduct.name" required />
+      </div>
+
+      <div class="input-group">
+        <label for="editDescription">Descrição</label>
+        <input type="text" id="editDescription" [(ngModel)]="editingProduct.description" />
+      </div>
+
+      <div class="input-group">
+        <label for="editPrice">Preço (R$)</label>
+        <input type="number" id="editPrice" [(ngModel)]="editingProduct.price"
+               step="0.01" min="0" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="closeEditModal()">Cancelar</button>
+      <button class="btn-confirm increase-btn"
+              (click)="updateProduct()"
+              [disabled]="!editingProduct.name || editingProduct.price < 0">
+        Atualizar Produto
+      </button>
+    </div>
+  </div>
+</div>

@@ -33,26 +33,6 @@ public static class BuilderExtensions
         );
     }
 
-    public static void AddAuthentication(this WebApplicationBuilder builder)
-    {
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero 
-                };
-            });
-
-        builder.Services.AddAuthorization();
-    }
-
     public static void AddRabbitMq(this WebApplicationBuilder builder)
     {
         var rabbitMqSettings = builder.Configuration

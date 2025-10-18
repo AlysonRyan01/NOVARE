@@ -1,0 +1,296 @@
+.customer-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #eef2f6 0%, #f8fafc 100%);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
+}
+
+/* --- Cabeçalho --- */
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    font-size: 1.8rem;
+  }
+}
+
+.page-subtitle {
+  color: #475569;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* --- Cards --- */
+.card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+.badge {
+  background: #2563eb;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* --- Formulário --- */
+.customer-form {
+  padding: 2rem;
+  background: #ffffff;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: #1e293b;
+    font-size: 0.9rem;
+  }
+
+  input {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid #cbd5e1;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    color: #000000; /* ← TEXTO PRETO ADICIONADO AQUI */
+
+    &:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      transform: translateY(-1px);
+      color: #000000; /* ← TEXTO PRETO NO FOCUS TAMBÉM */
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 2.5rem;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* --- Botão --- */
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: #ffffff;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  i {
+    font-size: 1.2rem;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -8px rgba(37, 99, 235, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+/* --- Tabela --- */
+.table-container {
+  overflow-x: auto;
+}
+
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  color: #1e293b;
+
+  th {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: #0f172a;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+
+  .table-row {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f8fafc;
+      transform: scale(1.01);
+    }
+  }
+
+  .customer-name {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    color: #0f172a;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem !important;
+    color: #64748b;
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    p {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    small {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* --- Ícones emoji --- */
+.icon-users::before { content: "👥"; }
+.icon-plus::before { content: "➕"; }
+.icon-user::before { content: "👤"; }
+.icon-mail::before { content: "✉️"; }
+.icon-phone::before { content: "📞"; }
+.icon-file::before { content: "📄"; }
+.icon-list::before { content: "📋"; }
+.icon-check::before { content: "✅"; }
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+  .customer-container {
+    padding: 1rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header,
+  .customer-form {
+    padding: 1.25rem;
+  }
+
+  .customer-table th,
+  .customer-table td {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Snackbar Styles - REMOVA ESTES SE NÃO USA MAIS MATERIAL SNACKBAR */
+.snackbar-success {
+  background-color: #10b981 !important;
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+}
+
+.snackbar-error {
+  background-color: #ef4444 !important;
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+}
+
+/* Garantir que o texto e botão fiquem brancos */
+::ng-deep .snackbar-success .mat-simple-snackbar {
+  color: white !important;
+}
+
+::ng-deep .snackbar-success .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .snackbar-error .mat-simple-snackbar {
+  color: white !important;
+}
+
+::ng-deep .snackbar-error .mat-simple-snackbar-action {
+  color: white !important;
+}

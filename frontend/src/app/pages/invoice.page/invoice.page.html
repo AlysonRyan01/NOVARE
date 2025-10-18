@@ -1,0 +1,201 @@
+<div class="invoice-container">
+  <!-- Cabeçalho -->
+  <div class="header-section">
+    <h1 class="page-title">
+      <i class="icon-invoice"></i>
+      Faturas
+    </h1>
+    <p class="page-subtitle">Gerencie e crie novas faturas para seus clientes</p>
+  </div>
+
+  <!-- Card: Criar Nova Fatura -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <i class="icon-plus"></i>
+        Nova Fatura
+      </h2>
+      <span class="badge">{{ newInvoice.items.length }} itens</span>
+    </div>
+
+    <form (ngSubmit)="createInvoice()" class="invoice-form">
+      <!-- Seleção do Cliente -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="icon-customer"></i>
+          Dados do Cliente
+        </h3>
+        <div class="customer-selection">
+          <div class="select-group">
+            <label for="customerId">Cliente *</label>
+            <select
+              id="customerId"
+              [(ngModel)]="newInvoice.customerId"
+              name="customerId"
+              required>
+              <option value="">Selecione um cliente</option>
+              <option *ngFor="let c of customers" [value]="c.id">
+                {{ c.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adição de Itens -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="icon-product"></i>
+          Itens da Fatura
+        </h3>
+
+        <div class="add-item-section">
+          <div class="add-item-grid">
+            <div class="input-group">
+              <label for="productId">Produto</label>
+              <select
+                id="productId"
+                [(ngModel)]="selectedProductId"
+                name="productId">
+                <option value="">Selecione um produto</option>
+                <option *ngFor="let p of products" [value]="p.id">
+                  {{ p.name }} - {{ p.price | currency:'BRL' }}
+                </option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="quantity">Quantidade</label>
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                [(ngModel)]="selectedQuantity"
+                name="quantity"
+                placeholder="Qtd."
+              />
+            </div>
+
+            <button
+              type="button"
+              (click)="addItemToInvoice()"
+              class="add-btn">
+              <i class="icon-plus"></i>
+              Adicionar Item
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de Itens -->
+        <table class="items-table" *ngIf="newInvoice.items.length > 0">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Qtd</th>
+              <th>Preço Unitário</th>
+              <th>Total</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of newInvoice.items; let i = index" class="table-row">
+              <td>{{ item.productName }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.unitPrice | currency:'BRL' }}</td>
+              <td>{{ item.quantity * item.unitPrice | currency:'BRL' }}</td>
+              <td>
+                <button
+                  type="button"
+                  (click)="removeItem(i)"
+                  class="remove-btn">
+                  <i class="icon-trash"></i>
+                  Remover
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Total da Fatura -->
+        <div *ngIf="newInvoice.items.length > 0" class="invoice-total">
+          <div class="total-label">Total da Fatura:</div>
+          <div class="total-value">{{ getInvoiceTotal() | currency:'BRL' }}</div>
+        </div>
+      </div>
+
+      <!-- Botão Criar Fatura -->
+      <button
+        type="submit"
+        class="submit-btn"
+        [disabled]="!newInvoice.customerId || newInvoice.items.length === 0">
+        <i class="icon-invoice"></i>
+        Criar Fatura
+      </button>
+    </form>
+  </div>
+
+  <!-- Card: Lista de Faturas -->
+  <div class="card invoices-section">
+    <div class="card-header">
+      <h2 class="card-title">
+        <i class="icon-list"></i>
+        Faturas Existentes
+      </h2>
+      <span class="badge">{{ invoices.length }} faturas</span>
+    </div>
+
+    <div class="invoice-form">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <i class="icon-list"></i>
+        <p>Carregando faturas...</p>
+      </div>
+
+      <!-- Tabela de Faturas -->
+      <table *ngIf="!loading && invoices.length > 0" class="invoice-list">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Status</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Criada em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inv of invoices" class="table-row">
+            <td>{{ inv.number }}</td>
+            <td>
+              <span [class]="'status-badge ' + getStatusClass(inv.status)">
+                {{ inv.status }}
+              </span>
+            </td>
+            <td>{{ getCustomerName(inv.customerId) }}</td>
+            <td>{{ inv.total | currency:'BRL' }}</td>
+            <td>
+              <i class="icon-calendar"></i>
+              {{ inv.createdAt | date:'dd/MM/yyyy' }}
+            </td>
+            <td>
+              <button
+                (click)="requestPrint(inv)"
+                [disabled]="inv.status === 'Printing'"
+                class="print-btn">
+                <i class="icon-print"></i>
+                {{ inv.status === 'Printing' ? 'Imprimindo...' : 'Imprimir' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && invoices.length === 0" class="empty-state">
+        <i class="icon-invoice"></i>
+        <p>Nenhuma fatura encontrada</p>
+        <small>Crie sua primeira fatura usando o formulário acima</small>
+      </div>
+    </div>
+  </div>
+</div>

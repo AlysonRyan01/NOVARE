@@ -21,12 +21,6 @@ public static class AppExtensions
         }
     }
 
-    public static void AddAuthentication(this WebApplication app)
-    {
-        app.UseAuthentication();
-        app.UseAuthorization();
-    }
-
     public static void AddExceptionsMiddleware(this WebApplication app)
     {
         app.UseMiddleware<ExceptionsHandlerMiddleware>();

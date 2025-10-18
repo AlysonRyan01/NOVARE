@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+WORKDIR /app
+
+COPY ["src/Gateway/Gateway.Api/Gateway.Api.csproj", "src/Gateway/Gateway.Api/"]
+COPY ["src/SharedService/SharedService.Shared/SharedService.Shared.csproj", "src/SharedService/SharedService.Shared/"]
+
+RUN dotnet restore "src/Gateway/Gateway.Api/Gateway.Api.csproj"
+
+COPY . .
+
+WORKDIR "/app/src/Gateway/Gateway.Api"
+
+RUN dotnet build "Gateway.Api.csproj" -c Debug
+
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet", "run", "--urls", "http://0.0.0.0:5000"]
+

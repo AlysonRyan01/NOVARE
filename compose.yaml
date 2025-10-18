@@ -1,47 +1,11 @@
 ﻿services:
-  authservice.api:
-    image: authservice.api
-    build:
-      context: .
-      dockerfile: src/AuthService/AuthService.Api/Dockerfile.dev
-    ports:
-      - "5001:5000"
-    environment:
-      - ConnectionStrings__DefaultConnection=${AUTH_DEFAULT_CONNECTION}
-      - JwtBearerSettings__SecretKey=${AUTH_JWT_SECRET_KEY}
-      - Cors__PolicyName=${AUTH_CORS_POLICYNAME}
-      - Cors__Origins=${AUTH_CORS_ORIGINS}
-    volumes:
-      - ./src:/app/src
-    depends_on:
-      authservice.db:
-          condition: service_healthy
-      
-      
-  authservice.db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: ${AUTH_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${AUTH_POSTGRES_DB}
-    ports:
-      - "${AUTH_POSTGRES_PORT}:5432"
-    volumes:
-      - authpgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   stockservice.api:
     image: stockservice.api
     build:
       context: .
       dockerfile: src/StockService/StockService.Api/Dockerfile.dev
     ports:
-      - "5002:5000"
+      - "5001:5000"
     environment:
       - ConnectionStrings__DefaultConnection=${STOCK_DEFAULT_CONNECTION}
       - Cors__PolicyName=${STOCK_CORS_POLICYNAME}
@@ -54,7 +18,7 @@
       - ./src:/app/src
     depends_on:
       stockservice.db:
-          condition: service_healthy
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
 
@@ -74,7 +38,66 @@
       interval: 5s
       timeout: 5s
       retries: 5
-      
+
+  invoiceservice.api:
+    image: invoiceservice.api
+    build:
+      context: .
+      dockerfile: src/InvoiceService/InvoiceService.Api/Dockerfile.dev
+    ports:
+      - "5002:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=${INVOICE_DEFAULT_CONNECTION}
+      - Cors__PolicyName=${INVOICE_CORS_POLICYNAME}
+      - Cors__Origins=${INVOICE_CORS_ORIGINS}
+      - RabbitMqSettings__ConnectionString=rabbitmq://rabbitmq:5672
+      - RabbitMqSettings__User=${RABBITMQ_USER}
+      - RabbitMqSettings__Password=${RABBITMQ_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      invoiceservice.db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  invoiceservice.db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${INVOICE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${INVOICE_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${INVOICE_POSTGRES_DB}
+    ports:
+      - "${INVOICE_POSTGRES_PORT}:5432"
+    volumes:
+      - invoicepgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${INVOICE_POSTGRES_USER} -d ${INVOICE_POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gateway.api:
+    image: gateway.api
+    build:
+      context: .
+      dockerfile: src/Gateway/Gateway.Api/Dockerfile.dev
+    ports:
+      - "5000:5000"
+    environment:
+      - Cors__PolicyName=${GATEWAY_CORS_POLICYNAME}
+      - Cors__Origins=${GATEWAY_CORS_ORIGINS}
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      invoiceservice.api:
+        condition: service_started
+      stockservice.api:
+        condition: service_started
+    volumes:
+      - ./src:/app/src
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -92,8 +115,7 @@
       retries: 5
       timeout: 5s
 
-      
 volumes:
-  authpgdata:
   stockpgdata:
   rabbitmqdata:
+  invoicepgdata:

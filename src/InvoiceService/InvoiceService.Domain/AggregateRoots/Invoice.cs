@@ -38,7 +38,7 @@ public class Invoice : AggregateRoot
         Items = items;
         Status = EInvoiceStatus.Pending;
         CustomerId = customerId;
-        CreatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
     }
 
     internal void ChangeState(IInvoiceState newState) => _state = newState;
@@ -93,6 +93,9 @@ public class Invoice : AggregateRoot
     
         if (errors.Any())
             return Result<Invoice>.Fail(errors);
+        
+        _state = new PendingState();
+        Errors.Clear();
     
         CustomerId = customerId;
         Items = items;

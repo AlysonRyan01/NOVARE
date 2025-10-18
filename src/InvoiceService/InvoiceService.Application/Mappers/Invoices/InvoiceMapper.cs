@@ -32,8 +32,7 @@ public static class InvoiceMapper
             ProductId: item.ProductId,
             ProductName: item.ProductName,
             Quantity: item.Quantity,
-            UnitPrice: item.UnitPrice,
-            TotalPrice: item.TotalPrice
+            UnitPrice: item.UnitPrice
         );
     }
 }

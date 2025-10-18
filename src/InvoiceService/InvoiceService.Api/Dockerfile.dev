@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+WORKDIR /app
+
+COPY ["src/InvoiceService/InvoiceService.Api/InvoiceService.Api.csproj", "src/InvoiceService/InvoiceService.Api/"]
+COPY ["src/SharedService/SharedService.Shared/SharedService.Shared.csproj", "src/SharedService/SharedService.Shared/"]
+COPY ["src/InvoiceService/InvoiceService.Application/InvoiceService.Application.csproj", "src/InvoiceService/InvoiceService.Application/"]
+COPY ["src/InvoiceService/InvoiceService.Domain/InvoiceService.Domain.csproj", "src/InvoiceService/InvoiceService.Domain/"]
+COPY ["src/InvoiceService/InvoiceService.Infrastructure/InvoiceService.Infrastructure.csproj", "src/InvoiceService/InvoiceService.Infrastructure/"]
+
+RUN dotnet restore "src/InvoiceService/InvoiceService.Api/InvoiceService.Api.csproj"
+
+COPY . .
+
+WORKDIR "/app/src/InvoiceService/InvoiceService.Api"
+
+RUN dotnet build "InvoiceService.Api.csproj" -c Debug
+
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet", "run", "--urls", "http://0.0.0.0:5000"]
+

@@ -1,0 +1,95 @@
+<div class="customer-container">
+  <div class="header-section">
+    <h2 class="page-title">
+      <i class="icon-users"></i>
+      Gerenciar Clientes
+    </h2>
+    <p class="page-subtitle">Adicione e visualize os clientes do sistema</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="icon-plus"></i>
+        Novo Cliente
+      </h3>
+    </div>
+    <form class="customer-form" (ngSubmit)="createCustomer()">
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="name">Nome Completo *</label>
+          <input type="text" id="name" placeholder="Digite o nome completo"
+                 [(ngModel)]="newCustomer.name" name="name" required />
+          <i class="input-icon icon-user"></i>
+        </div>
+
+        <div class="input-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="exemplo@email.com"
+                 [(ngModel)]="newCustomer.email" name="email" />
+          <i class="input-icon icon-mail"></i>
+        </div>
+
+        <div class="input-group">
+          <label for="phone">Telefone</label>
+          <input type="text" id="phone" placeholder="(11) 99999-9999"
+                 [(ngModel)]="newCustomer.phone" name="phone" />
+          <i class="input-icon icon-phone"></i>
+        </div>
+
+        <div class="input-group">
+          <label for="document">Documento</label>
+          <input type="text" id="document" placeholder="CPF ou CNPJ"
+                 [(ngModel)]="newCustomer.document" name="document" />
+          <i class="input-icon icon-file"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <i class="icon-check"></i>
+        Adicionar Cliente
+      </button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="icon-list"></i>
+        Lista de Clientes
+        <span class="badge">{{ customers.length }}</span>
+      </h3>
+    </div>
+
+    <div class="table-container">
+      <table class="customer-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Documento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of customers" class="table-row">
+            <td class="customer-name">
+              <i class="icon-user"></i>
+              {{ c.name }}
+            </td>
+            <td>{{ c.email || '—' }}</td>
+            <td>{{ c.phone || '—' }}</td>
+            <td>{{ c.document || '—' }}</td>
+          </tr>
+          <tr *ngIf="customers.length === 0" class="empty-state">
+            <td colspan="4">
+              <i class="icon-users"></i>
+              <p>Nenhum cliente cadastrado</p>
+              <small>Adicione um cliente usando o formulário acima</small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

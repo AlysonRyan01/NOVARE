@@ -25,7 +25,7 @@ public class ValidationRequestedState : IInvoiceState
     {
         invoice.Status = EInvoiceStatus.Printed;
         invoice.ChangeState(new PrintedState());
-        invoice.PrintedAt = DateTime.Now;
+        invoice.PrintedAt = DateTime.UtcNow;
         
         return Result<Invoice>.Ok(invoice);
     }
