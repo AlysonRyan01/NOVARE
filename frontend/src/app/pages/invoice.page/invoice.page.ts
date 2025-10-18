@@ -1,4 +1,3 @@
-// invoice.page.ts
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +9,7 @@ import { ProductDto } from '../../models/dtos.model';
 import { InvoiceDto, CreateInvoiceDto, InvoiceItemDto } from '../../models/dtos.model';
 import { interval, Subscription } from 'rxjs';
 import { switchMap, startWith } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -19,18 +19,17 @@ import Swal from 'sweetalert2';
   templateUrl: './invoice.page.html',
   styleUrl: './invoice.page.scss'
 })
+
 export class InvoicePage implements OnInit, OnDestroy {
   private customerService = inject(CustomerService);
   private invoiceService = inject(InvoiceService);
   private stockService = inject(StockService);
 
-  // Dados
   customers: CustomerDto[] = [];
   products: ProductDto[] = [];
   invoices: InvoiceDto[] = [];
   lastInvoiceHash: string = '';
 
-  // Formulário
   newInvoice: CreateInvoiceDto = {
     customerId: '',
     items: []
@@ -39,15 +38,13 @@ export class InvoicePage implements OnInit, OnDestroy {
   selectedProductId = '';
   selectedQuantity = 1;
 
-  // Estados
   loading = false;
   formLoading = false;
   error = '';
   formError = '';
 
-  // Polling
   private pollingSubscription?: Subscription;
-  private readonly POLLING_INTERVAL = 5000; // 5 segundos
+  private readonly POLLING_INTERVAL = 5000;
 
   ngOnInit() {
     this.loadData();
@@ -104,14 +101,9 @@ export class InvoicePage implements OnInit, OnDestroy {
           if (response.isSuccess && response.value) {
             const newHash = this.generateInvoicesHash(response.value);
 
-            // Só atualiza se houve mudança
             if (newHash !== this.lastInvoiceHash) {
-              console.log('Mudanças detectadas nas faturas, atualizando UI...');
               this.invoices = response.value;
               this.lastInvoiceHash = newHash;
-
-              // Notifica sobre atualização automática
-              this.showAlert('Dados atualizados automaticamente', false, '🔄 Atualização');
             }
           }
         },
@@ -128,7 +120,6 @@ export class InvoicePage implements OnInit, OnDestroy {
     }
   }
 
-  // Gera um hash simples para detectar mudanças
   private generateInvoicesHash(invoices: InvoiceDto[]): string {
     return btoa(JSON.stringify(invoices.map(inv => ({
       id: inv.id,
@@ -141,12 +132,12 @@ export class InvoicePage implements OnInit, OnDestroy {
   loadData() {
     this.loading = true;
 
-    // Carrega clientes e produtos em paralelo
     Promise.all([
-      this.customerService.getCustomers().toPromise(),
-      this.stockService.getProducts().toPromise(),
-      this.invoiceService.getInvoices().toPromise()
-    ]).then(([customersRes, productsRes, invoicesRes]) => {
+      firstValueFrom(this.customerService.getCustomers()),
+      firstValueFrom(this.stockService.getProducts()),
+      firstValueFrom(this.invoiceService.getInvoices())
+    ])
+    .then(([customersRes, productsRes, invoicesRes]) => {
       this.loading = false;
 
       if (customersRes?.isSuccess) this.customers = customersRes.value || [];
@@ -155,10 +146,8 @@ export class InvoicePage implements OnInit, OnDestroy {
         this.invoices = invoicesRes.value || [];
         this.lastInvoiceHash = this.generateInvoicesHash(this.invoices);
       }
-
-      this.showAlert('Dados carregados com sucesso!', false, '✅ Sucesso');
-
-    }).catch(err => {
+    })
+    .catch(err => {
       this.loading = false;
       this.error = 'Erro ao carregar dados';
       this.showAlert('Erro ao carregar dados', true, '❌ Erro');
@@ -190,10 +179,8 @@ export class InvoicePage implements OnInit, OnDestroy {
         quantity: this.selectedQuantity,
         unitPrice: product.price
       });
-      this.showAlert(`${product.name} adicionado à fatura`, false, '✅ Item adicionado');
     }
 
-    // Reset seleção
     this.selectedProductId = '';
     this.selectedQuantity = 1;
     this.formError = '';
@@ -202,7 +189,6 @@ export class InvoicePage implements OnInit, OnDestroy {
   removeItem(index: number) {
     const removedItem = this.newInvoice.items[index];
     this.newInvoice.items.splice(index, 1);
-    this.showAlert(`${removedItem.productName} removido da fatura`, false, '🗑️ Item removido');
   }
 
   getInvoiceTotal(): number {
@@ -237,7 +223,6 @@ export class InvoicePage implements OnInit, OnDestroy {
     this.formLoading = true;
     this.formError = '';
 
-    // Mostra loading enquanto cria a fatura
     Swal.fire({
       title: 'Criando fatura...',
       text: 'Aguarde enquanto processamos sua solicitação',
@@ -253,13 +238,12 @@ export class InvoicePage implements OnInit, OnDestroy {
         Swal.close();
 
         if (response.isSuccess && response.value) {
-          // Limpar formulário
           this.resetForm();
-          // Forçar atualização imediata via polling
+
           this.forceRefresh();
 
           this.showAlert(
-            `Fatura criada com sucesso! Total: R$ ${this.getInvoiceTotal().toFixed(2)}`,
+            `Fatura criada com sucesso!`,
             false,
             '✅ Fatura criada'
           );
@@ -283,7 +267,7 @@ export class InvoicePage implements OnInit, OnDestroy {
       `Deseja solicitar a impressão da fatura ${invoice.number}?`
     ).then((result) => {
       if (result.isConfirmed) {
-        // Mostra loading
+
         Swal.fire({
           title: 'Solicitando impressão...',
           text: 'Aguarde enquanto processamos sua solicitação',
@@ -298,12 +282,12 @@ export class InvoicePage implements OnInit, OnDestroy {
             Swal.close();
 
             if (response.isSuccess) {
-              // Atualizar status localmente imediatamente
+
               const invoiceIndex = this.invoices.findIndex(inv => inv.id === invoice.id);
               if (invoiceIndex !== -1) {
                 this.invoices[invoiceIndex].status = 'Printing';
               }
-              // Forçar atualização via polling
+
               this.forceRefresh();
 
               this.showAlert(
@@ -312,24 +296,32 @@ export class InvoicePage implements OnInit, OnDestroy {
                 '🖨️ Impressão'
               );
             } else {
-              this.showAlert(
-                response.errors?.join(', ') || 'Erro ao solicitar impressão',
+              if (response.errors != undefined)
+              response.errors.forEach(erro => {
+                this.showAlert(
+                erro,
                 true,
                 '❌ Erro'
               );
+              });
             }
           },
-          error: (err) => {
+          error: (err: any) => {
             Swal.close();
-            this.showAlert('Erro ao solicitar impressão', true, '❌ Erro');
-            console.error('Erro:', err);
+            if (err.error.errors != undefined)
+              err.error.errors.forEach((er: any) => {
+                this.showAlert(
+                er,
+                true,
+                '❌ Erro'
+              );
+              });
           }
         });
       }
     });
   }
 
-  // Força uma atualização imediata
   private forceRefresh() {
     this.invoiceService.getInvoices().subscribe({
       next: (response) => {
@@ -341,13 +333,11 @@ export class InvoicePage implements OnInit, OnDestroy {
     });
   }
 
-  // Método para atualização manual
   manualRefresh() {
     this.showAlert('Atualizando dados...', false, '🔄 Atualizando');
     this.forceRefresh();
   }
 
-  // Método para limpar formulário com confirmação
   clearForm() {
     if (this.newInvoice.items.length > 0 || this.newInvoice.customerId) {
       this.showConfirmation(

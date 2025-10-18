@@ -14,7 +14,7 @@ import {
 })
 export class InvoiceService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api';
+  private readonly baseUrl = 'http://localhost:5005/api';
 
   getInvoices(pageNumber: number = 1, pageSize: number = 20): Observable<ApiResponse<InvoiceDto[]>> {
     const params = new HttpParams()

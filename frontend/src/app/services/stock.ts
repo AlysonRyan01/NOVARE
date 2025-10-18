@@ -17,7 +17,7 @@ import {
 })
 export class StockService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api';
+  private readonly baseUrl = 'http://localhost:5005/api';
 
   getProducts(pageNumber: number = 1, pageSize: number = 20): Observable<ApiResponse<ProductDto[]>> {
   const params = new HttpParams()

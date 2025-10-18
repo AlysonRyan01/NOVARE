@@ -85,7 +85,7 @@
       context: .
       dockerfile: src/Gateway/Gateway.Api/Dockerfile.dev
     ports:
-      - "5000:5000"
+      - "5005:5000"
     environment:
       - Cors__PolicyName=${GATEWAY_CORS_POLICYNAME}
       - Cors__Origins=${GATEWAY_CORS_ORIGINS}

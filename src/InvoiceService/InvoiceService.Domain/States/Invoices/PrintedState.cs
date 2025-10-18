@@ -10,7 +10,7 @@ public class PrintedState : IInvoiceState
         => Result<Invoice>.Fail(["Uma nota fiscal com impressa não pode voltar a ser pendente"]);
 
     public Result<Invoice> ValidationRequested(Invoice invoice)
-        => Result<Invoice>.Fail(["Uma nota fiscal impressa já foi validada"]);
+        => Result<Invoice>.Fail(["A nota fiscal já foi impressa"]);
 
     public Result<Invoice> OutOfStock(Invoice invoice)
         => Result<Invoice>.Fail(["Uma nota fiscal com impressa não pode ter produtos fora de estoque"]);

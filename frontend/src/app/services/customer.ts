@@ -8,7 +8,7 @@ import { CustomerDto, CreateCustomerDto, ApiResponse } from '../models/dtos.mode
 })
 export class CustomerService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api';
+  private readonly baseUrl = 'http://localhost:5005/api';
 
   getCustomers(): Observable<ApiResponse<CustomerDto[]>> {
     return this.http.get<ApiResponse<CustomerDto[]>>(`${this.baseUrl}/customers`);
