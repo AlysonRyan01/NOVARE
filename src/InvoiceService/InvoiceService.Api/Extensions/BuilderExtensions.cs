@@ -30,6 +30,11 @@ public static class BuilderExtensions
         );
     }
 
+    public static void AddSignalR(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSignalR();
+    }
+
     public static void AddRabbitMq(this WebApplicationBuilder builder)
     {
         var rabbitMqSettings = builder.Configuration

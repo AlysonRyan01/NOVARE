@@ -44,9 +44,7 @@ public class StockReservationService : IStockReservationService
                 if (!sufficientStock)
                 {
                     errors.Add(
-                        $"O produto {product.Name.Value} não tem estoque suficiente " +
-                        $"(estoque solicidado {invoiceItem.Quantity}" +
-                        $", estoque real {product.StockQuantity.Value})");
+                        $"{product.Name.Value}: Estoque insuficiente — {product.StockQuantity.Value} disponíveis");
                     
                     continue;
                 }

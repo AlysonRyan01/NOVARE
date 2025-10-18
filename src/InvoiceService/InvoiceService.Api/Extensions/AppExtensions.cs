@@ -1,6 +1,7 @@
 using InvoiceService.Api.Endpoints;
 using InvoiceService.Api.Middlewares;
 using InvoiceService.Infrastructure.Data;
+using InvoiceService.Infrastructure.Hubs;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceService.Api.Extensions;
@@ -20,6 +21,11 @@ public static class AppExtensions
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+    }
+
+    public static void AddSignalR(this WebApplication app)
+    {
+        app.MapHub<InvoiceHub>("/invoiceHub");
     }
 
     public static void AddExceptionsMiddleware(this WebApplication app)

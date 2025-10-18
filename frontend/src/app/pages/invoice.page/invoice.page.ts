@@ -6,11 +6,10 @@ import { InvoiceService } from '../../services/invoice';
 import { StockService } from '../../services/stock';
 import { CustomerDto } from '../../models/dtos.model';
 import { ProductDto } from '../../models/dtos.model';
-import { InvoiceDto, CreateInvoiceDto, InvoiceItemDto } from '../../models/dtos.model';
-import { interval, Subscription } from 'rxjs';
-import { switchMap, startWith } from 'rxjs/operators';
+import { InvoiceDto, CreateInvoiceDto } from '../../models/dtos.model';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
+import * as signalR from '@microsoft/signalr';
 
 @Component({
   selector: 'novare-invoice',
@@ -24,11 +23,11 @@ export class InvoicePage implements OnInit, OnDestroy {
   private customerService = inject(CustomerService);
   private invoiceService = inject(InvoiceService);
   private stockService = inject(StockService);
+  private hubConnection!: signalR.HubConnection;
 
   customers: CustomerDto[] = [];
   products: ProductDto[] = [];
   invoices: InvoiceDto[] = [];
-  lastInvoiceHash: string = '';
 
   newInvoice: CreateInvoiceDto = {
     customerId: '',
@@ -43,16 +42,41 @@ export class InvoicePage implements OnInit, OnDestroy {
   error = '';
   formError = '';
 
-  private pollingSubscription?: Subscription;
-  private readonly POLLING_INTERVAL = 5000;
-
   ngOnInit() {
     this.loadData();
-    this.startPolling();
+
+    this.hubConnection = new signalR.HubConnectionBuilder()
+          .withUrl('http://localhost:5002/invoiceHub')
+          .withAutomaticReconnect()
+          .build();
+
+        this.hubConnection.start().catch(err => console.error(err));
+
+        this.hubConnection.on('ReceiveError', (message: string) => {
+          const errors: string[] = message.split(',');
+          console.log(errors)
+
+          const allErrors = errors.join('<br>');
+
+          Swal.fire({
+            icon: 'error',
+            title: '⚠️ Notificação',
+            html: allErrors,
+            showConfirmButton: true
+          });
+
+          this.loadData();
+        });
+
+        this.hubConnection.on('ReceiveSuccess', (message: string) => {
+          console.log(message)
+          this.showAlert(message, false, '⚠️ Notificação')
+          this.loadData();
+        });
   }
 
   ngOnDestroy() {
-    this.stopPolling();
+    this.hubConnection.stop();
   }
 
   private showAlert(message: string, isError: boolean = false, title?: string) {
@@ -90,45 +114,6 @@ export class InvoicePage implements OnInit, OnDestroy {
     });
   }
 
-  startPolling() {
-    this.pollingSubscription = interval(this.POLLING_INTERVAL)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.invoiceService.getInvoices())
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.isSuccess && response.value) {
-            const newHash = this.generateInvoicesHash(response.value);
-
-            if (newHash !== this.lastInvoiceHash) {
-              this.invoices = response.value;
-              this.lastInvoiceHash = newHash;
-            }
-          }
-        },
-        error: (err) => {
-          console.error('Erro no polling de faturas:', err);
-          this.showAlert('Erro na sincronização automática', true, '❌ Erro');
-        }
-      });
-  }
-
-  stopPolling() {
-    if (this.pollingSubscription) {
-      this.pollingSubscription.unsubscribe();
-    }
-  }
-
-  private generateInvoicesHash(invoices: InvoiceDto[]): string {
-    return btoa(JSON.stringify(invoices.map(inv => ({
-      id: inv.id,
-      status: inv.status,
-      total: inv.total,
-      items: inv.items.length
-    }))));
-  }
-
   loadData() {
     this.loading = true;
 
@@ -144,7 +129,6 @@ export class InvoicePage implements OnInit, OnDestroy {
       if (productsRes?.isSuccess) this.products = productsRes.value || [];
       if (invoicesRes?.isSuccess) {
         this.invoices = invoicesRes.value || [];
-        this.lastInvoiceHash = this.generateInvoicesHash(this.invoices);
       }
     })
     .catch(err => {
@@ -289,12 +273,6 @@ export class InvoicePage implements OnInit, OnDestroy {
               }
 
               this.forceRefresh();
-
-              this.showAlert(
-                `Impressão da fatura ${invoice.number} solicitada com sucesso!`,
-                false,
-                '🖨️ Impressão'
-              );
             } else {
               if (response.errors != undefined)
               response.errors.forEach(erro => {
@@ -327,29 +305,9 @@ export class InvoicePage implements OnInit, OnDestroy {
       next: (response) => {
         if (response.isSuccess && response.value) {
           this.invoices = response.value;
-          this.lastInvoiceHash = this.generateInvoicesHash(this.invoices);
         }
       }
     });
-  }
-
-  manualRefresh() {
-    this.showAlert('Atualizando dados...', false, '🔄 Atualizando');
-    this.forceRefresh();
-  }
-
-  clearForm() {
-    if (this.newInvoice.items.length > 0 || this.newInvoice.customerId) {
-      this.showConfirmation(
-        'Limpar formulário',
-        'Tem certeza que deseja limpar o formulário? Todos os itens serão perdidos.'
-      ).then((result) => {
-        if (result.isConfirmed) {
-          this.resetForm();
-          this.showAlert('Formulário limpo com sucesso', false, '🧹 Limpo');
-        }
-      });
-    }
   }
 
   private resetForm() {

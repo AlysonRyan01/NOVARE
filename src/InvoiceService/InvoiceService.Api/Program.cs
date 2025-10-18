@@ -2,6 +2,7 @@ using InvoiceService.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddPostgreSql();
+builder.AddSignalR();
 builder.AddDependencies();
 builder.AddMediatR();
 builder.AddRabbitMq();
@@ -15,6 +16,7 @@ app.AddExceptionsMiddleware();
 app.ApplyMigrations();
 app.AddCorsPolicy(builder);
 app.MapEndpoints();
+app.AddSignalR();
 app.AddSwagger();
 
 app.Run();
