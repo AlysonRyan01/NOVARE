@@ -4,6 +4,10 @@
     build:
       context: .
       dockerfile: src/StockService/StockService.Api/Dockerfile.dev
+    command: >
+      /bin/bash -c "cd src/StockService.Tests &&
+                    dotnet restore &&
+                    dotnet test --logger 'trx;LogFileName=test-results.trx'"
     ports:
       - "5001:5000"
     environment:
@@ -44,6 +48,10 @@
     build:
       context: .
       dockerfile: src/InvoiceService/InvoiceService.Api/Dockerfile.dev
+    command: >
+      /bin/bash -c "cd src/InvoiceService.Tests &&
+                    dotnet restore &&
+                    dotnet test --logger 'trx;LogFileName=test-results.trx'"
     ports:
       - "5002:5000"
     environment:
@@ -108,6 +116,10 @@
     build:
       context: .
       dockerfile: src/CustomerService/CustomerService.Api/Dockerfile.dev
+    command: >
+      /bin/bash -c "cd src/CustomerService.Tests &&
+                    dotnet restore &&
+                    dotnet test --logger 'trx;LogFileName=test-results.trx'"
     ports:
       - "5003:5000"
     environment:

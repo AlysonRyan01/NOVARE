@@ -3,7 +3,6 @@ using Gateway.Api.Interfaces;
 using Gateway.Api.Services;
 using MassTransit;
 using Microsoft.OpenApi.Models;
-using SharedService.Shared.Events;
 using SharedService.Shared.Settings;
 
 namespace Gateway.Api.Extensions;
@@ -78,7 +77,6 @@ public static class BuilderExtensions
                 c.SwaggerDoc("v1", new()
                 {
                     Title = "Gateway API",
-                    Description = "Serviço de redirecionamento",
                     Version = "v1",
                     Contact = new OpenApiContact { Name = "Alyson Ryan Ullirsch", Email = "alysonullirsch8@gmail.com" }
                 });

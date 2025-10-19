@@ -96,7 +96,6 @@ public static class BuilderExtensions
                 c.SwaggerDoc("v1", new()
                 {
                     Title = "Serviço de estoque",
-                    Description = "Serviço de estoque",
                     Version = "v1",
                     Contact = new OpenApiContact { Name = "Alyson Ryan Ullirsch", Email = "alysonullirsch8@gmail.com" }
                 });
