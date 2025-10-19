@@ -1,9 +1,7 @@
 using InvoiceService.Application.Services;
 using InvoiceService.Domain.AggregateRoots;
 using InvoiceService.Domain.Repositories.Invoices;
-using InvoiceService.Infrastructure.Hubs;
 using MassTransit;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using SharedService.Shared;
 using SharedService.Shared.Events;
@@ -16,20 +14,20 @@ public class OutOfStockConsumer : IConsumer<OutOfStockEvent>
     private readonly IInvoiceQueryRepository _invoiceQueryRepository;
     private readonly IInvoiceCommandRepository _invoiceCommandRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IHubContext<InvoiceHub> _hubContext;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public OutOfStockConsumer(
         ILogger<OutOfStockConsumer> logger,
         IInvoiceQueryRepository invoiceQueryRepository,
         IInvoiceCommandRepository invoiceCommandRepository,
         IUnitOfWork unitOfWork,
-        IHubContext<InvoiceHub> hubContext)
+        IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _invoiceQueryRepository = invoiceQueryRepository;
         _invoiceCommandRepository = invoiceCommandRepository;
         _unitOfWork = unitOfWork;
-        _hubContext = hubContext;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task Consume(ConsumeContext<OutOfStockEvent> context)
@@ -75,8 +73,10 @@ public class OutOfStockConsumer : IConsumer<OutOfStockEvent>
             await _unitOfWork.BeginTransactionAsync();
             await _invoiceCommandRepository.UpdateAsync(invoice);
             await _unitOfWork.CommitAsync();
+            
+            var notifier = new OutOfStockNotifier(@event.InvoiceId, @event.Errors.ToList());
 
-            await _hubContext.Clients.All.SendAsync("ReceiveError", string.Join(", ", @event.Errors));
+            await _publishEndpoint.Publish(notifier);
 
             _logger.LogInformation(
                 "Invoice {InvoiceId} marcada como out of stock e notificação enviada. Erros: {Errors}",
@@ -85,7 +85,10 @@ public class OutOfStockConsumer : IConsumer<OutOfStockEvent>
         }
         catch (Exception ex)
         {
-            await _hubContext.Clients.All.SendAsync("ReceiveError", $"Erro crítico ao processar invoice {@event.InvoiceId}: {ex.Message}");
+            var notifier = new OutOfStockNotifier(
+                @event.InvoiceId, [$"Erro crítico ao processar a nota fiscal {@event.InvoiceId}"]);
+            
+            await _publishEndpoint.Publish(notifier);
             _logger.LogError(ex, "Erro ao processar OutOfStockEvent para Invoice: {InvoiceId}", @event.InvoiceId);
             throw;
         }

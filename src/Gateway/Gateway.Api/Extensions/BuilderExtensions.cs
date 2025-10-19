@@ -1,6 +1,10 @@
+using Gateway.Api.Consumers;
 using Gateway.Api.Interfaces;
 using Gateway.Api.Services;
+using MassTransit;
 using Microsoft.OpenApi.Models;
+using SharedService.Shared.Events;
+using SharedService.Shared.Settings;
 
 namespace Gateway.Api.Extensions;
 
@@ -28,6 +32,38 @@ public static class BuilderExtensions
         builder.Services.AddHttpClient("CustomerService", client =>
         {
             client.BaseAddress = new Uri("http://customerservice.api:5000");
+        });
+    }
+    
+    public static void AddSignalR(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSignalR();
+    }
+    
+    public static void AddRabbitMq(this WebApplicationBuilder builder)
+    {
+        var rabbitMqSettings = builder.Configuration
+            .GetSection("RabbitMqSettings")
+            .Get<RabbitMqSettings>();
+        
+        if (rabbitMqSettings is null)
+            throw new ArgumentNullException(nameof(rabbitMqSettings));
+        
+        builder.Services.AddMassTransit(busConfiguration =>
+        {
+            busConfiguration.AddConsumer<OutOfStockEventConsumer>();
+            busConfiguration.AddConsumer<StockReservedEventConsumer>();
+            
+            busConfiguration.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host(new Uri(rabbitMqSettings.ConnectionString), host =>
+                {
+                    host.Username(rabbitMqSettings.User);
+                    host.Password(rabbitMqSettings.Password);
+                });
+                
+                cfg.ConfigureEndpoints(ctx);
+            });
         });
     }
     

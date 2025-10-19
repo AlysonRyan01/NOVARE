@@ -1,4 +1,5 @@
 using Gateway.Api.Endpoints;
+using Gateway.Api.Hubs;
 using Gateway.Api.Middlewares;
 
 namespace Gateway.Api.Extensions;
@@ -19,6 +20,11 @@ public static class AppExtensions
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+    }
+    
+    public static void AddSignalR(this WebApplication app)
+    {
+        app.MapHub<GatewayHub>("/gatewayHub");
     }
 
     public static void AddCustomMiddlewares(this WebApplication app)

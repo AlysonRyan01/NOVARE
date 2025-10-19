@@ -89,6 +89,9 @@
     environment:
       - Cors__PolicyName=${GATEWAY_CORS_POLICYNAME}
       - Cors__Origins=${GATEWAY_CORS_ORIGINS}
+      - RabbitMqSettings__ConnectionString=rabbitmq://rabbitmq:5672
+      - RabbitMqSettings__User=${RABBITMQ_USER}
+      - RabbitMqSettings__Password=${RABBITMQ_PASSWORD}
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       invoiceservice.api:

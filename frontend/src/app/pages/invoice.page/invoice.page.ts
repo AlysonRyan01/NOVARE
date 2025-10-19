@@ -46,7 +46,7 @@ export class InvoicePage implements OnInit, OnDestroy {
     this.loadData();
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-          .withUrl('http://localhost:5002/invoiceHub')
+          .withUrl('http://localhost:5005/gatewayHub')
           .withAutomaticReconnect()
           .build();
 
@@ -57,7 +57,7 @@ export class InvoicePage implements OnInit, OnDestroy {
           console.log(errors)
 
           const allErrors = errors.join('<br>');
-          await this.delay(3000)
+          await this.delay(2000)
 
           Swal.fire({
             icon: 'error',
@@ -70,7 +70,8 @@ export class InvoicePage implements OnInit, OnDestroy {
         });
 
         this.hubConnection.on('ReceiveSuccess', async (message: string) => {
-          await this.delay(3000);
+          await this.delay(2000);
+          console.log('aqui')
 
           Swal.fire({
             icon: 'success',
@@ -291,12 +292,12 @@ export class InvoicePage implements OnInit, OnDestroy {
               if (invoiceIndex !== -1) {
                 this.invoices[invoiceIndex].status = 'Validando..';
               }
-              
+
               const errors: string[] = err.error.errors;
               console.log(errors)
 
               const allErrors = errors.join('<br>');
-              await this.delay(3000)
+              await this.delay(2000)
 
               Swal.fire({
                 icon: 'error',

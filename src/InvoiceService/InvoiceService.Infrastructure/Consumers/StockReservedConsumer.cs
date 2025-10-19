@@ -1,9 +1,7 @@
 using InvoiceService.Application.Services;
 using InvoiceService.Domain.AggregateRoots;
 using InvoiceService.Domain.Repositories.Invoices;
-using InvoiceService.Infrastructure.Hubs;
 using MassTransit;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using SharedService.Shared;
 using SharedService.Shared.Events;
@@ -16,20 +14,20 @@ public class StockReservedConsumer : IConsumer<StockReservedEvent>
     private readonly IInvoiceQueryRepository _invoiceQueryRepository;
     private readonly IInvoiceCommandRepository _invoiceCommandRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IHubContext<InvoiceHub> _hubContext;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public StockReservedConsumer(
         ILogger<StockReservedConsumer> logger,
         IInvoiceQueryRepository invoiceQueryRepository,
         IInvoiceCommandRepository invoiceCommandRepository,
         IUnitOfWork unitOfWork,
-        IHubContext<InvoiceHub> hubContext)
+        IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _invoiceQueryRepository = invoiceQueryRepository;
         _invoiceCommandRepository = invoiceCommandRepository;
         _unitOfWork = unitOfWork;
-        _hubContext = hubContext;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task Consume(ConsumeContext<StockReservedEvent> context)
@@ -76,7 +74,8 @@ public class StockReservedConsumer : IConsumer<StockReservedEvent>
             await _invoiceCommandRepository.UpdateAsync(invoice);
             await _unitOfWork.CommitAsync();
 
-            await _hubContext.Clients.All.SendAsync("ReceiveSuccess", "Nota fiscal impressa com sucesso!");
+            var notifier = new StockReservedNotifier();
+            await _publishEndpoint.Publish(notifier);
 
             _logger.LogInformation(
                 "Invoice {InvoiceId} marcada como impressa com sucesso e notificação SignalR GLOBAL enviada",
@@ -84,7 +83,6 @@ public class StockReservedConsumer : IConsumer<StockReservedEvent>
         }
         catch (Exception ex)
         {
-            await _hubContext.Clients.All.SendAsync("ReceiveError", "Erro crítico ao processar a nota fiscal");
             _logger.LogError(ex, "Erro ao persistir invoice {InvoiceId}", invoice.Id);
             throw;
         }
