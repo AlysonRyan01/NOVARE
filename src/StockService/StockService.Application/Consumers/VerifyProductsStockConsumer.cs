@@ -21,15 +21,21 @@ public class VerifyProductsStockConsumer : IConsumer<VerifyProductsStockEvent>
     public async Task Consume(ConsumeContext<VerifyProductsStockEvent> context)
     {
         var data = context.Message;
-        var products = data.InvoiceItems;
 
-        var stockResult = await _stockReservationService.VerifyAndReserveStockAsync(data.InvoiceId, products);
+        var stockResult = await _stockReservationService.VerifyAndReserveStockAsync(
+            data.InvoiceId, 
+            data.InvoiceItems
+        );
+
         if (!stockResult.IsSuccess)
-        {
-            await _eventPublisher.PublishOutOfStockAsync(new OutOfStockEvent(data.InvoiceId, stockResult.Errors!));
-            return;
-        }
-
-        await _eventPublisher.PublishStockReservedAsync(new StockReservedEvent(data.InvoiceId));
+            await HandleOutOfStockAsync(data.InvoiceId, stockResult.Errors!);
+        else
+            await HandleStockReservedAsync(data.InvoiceId);
     }
+
+    private Task HandleOutOfStockAsync(Guid invoiceId, IEnumerable<string> errors)
+        => _eventPublisher.PublishOutOfStockAsync(new OutOfStockEvent(invoiceId, errors));
+
+    private Task HandleStockReservedAsync(Guid invoiceId)
+        => _eventPublisher.PublishStockReservedAsync(new StockReservedEvent(invoiceId));
 }

@@ -10,6 +10,7 @@ public static class BuilderExtensions
     {
         builder.Services.AddScoped<IStockService, StockService>();
         builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+        builder.Services.AddScoped<ICustomerService, CustomerService>();
     }
 
     public static void AddHttpClients(this WebApplicationBuilder builder)
@@ -23,6 +24,11 @@ public static class BuilderExtensions
         {
             client.BaseAddress = new Uri("http://invoiceservice.api:5000");
         });
+        
+        builder.Services.AddHttpClient("CustomerService", client =>
+        {
+            client.BaseAddress = new Uri("http://customerservice.api:5000");
+        });
     }
     
     public static void AddSwagger(this WebApplicationBuilder builder)
@@ -35,8 +41,8 @@ public static class BuilderExtensions
             {
                 c.SwaggerDoc("v1", new()
                 {
-                    Title = "Serviço de autenticação",
-                    Description = "Serviço de autenticação com JWT Bearer",
+                    Title = "Gateway API",
+                    Description = "Serviço de redirecionamento",
                     Version = "v1",
                     Contact = new OpenApiContact { Name = "Alyson Ryan Ullirsch", Email = "alysonullirsch8@gmail.com" }
                 });

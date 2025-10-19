@@ -10,7 +10,6 @@ public static class AppExtensions
 {
     public static void MapEndpoints(this WebApplication app)
     {
-        app.MapCustomerEndpoints();
         app.MapInvoiceEndpoints();
     }
     

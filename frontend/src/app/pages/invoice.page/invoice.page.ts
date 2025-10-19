@@ -52,11 +52,12 @@ export class InvoicePage implements OnInit, OnDestroy {
 
         this.hubConnection.start().catch(err => console.error(err));
 
-        this.hubConnection.on('ReceiveError', (message: string) => {
+        this.hubConnection.on('ReceiveError', async (message: string) => {
           const errors: string[] = message.split(',');
           console.log(errors)
 
           const allErrors = errors.join('<br>');
+          await this.delay(3000)
 
           Swal.fire({
             icon: 'error',
@@ -68,9 +69,15 @@ export class InvoicePage implements OnInit, OnDestroy {
           this.loadData();
         });
 
-        this.hubConnection.on('ReceiveSuccess', (message: string) => {
-          console.log(message)
-          this.showAlert(message, false, '⚠️ Notificação')
+        this.hubConnection.on('ReceiveSuccess', async (message: string) => {
+          await this.delay(3000);
+
+          Swal.fire({
+            icon: 'success',
+            title: '✅ Notificação',
+            html: message,
+            showConfirmButton: true
+          });
           this.loadData();
         });
   }
@@ -180,15 +187,8 @@ export class InvoicePage implements OnInit, OnDestroy {
       total + (item.quantity * item.unitPrice), 0);
   }
 
-  getStatusClass(status: string): string {
-    const statusMap: { [key: string]: string } = {
-      'Pending': 'pending',
-      'ValidationRequested': 'validation requested',
-      'OutOfStock': 'out of stock',
-      'Printed': 'printed',
-      'Printing': 'printing'
-    };
-    return statusMap[status] || 'pending';
+  delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   getCustomerName(customerId: string): string {
@@ -245,7 +245,7 @@ export class InvoicePage implements OnInit, OnDestroy {
     });
   }
 
-  requestPrint(invoice: InvoiceDto) {
+  async requestPrint(invoice: InvoiceDto) {
     this.showConfirmation(
       'Solicitar impressão',
       `Deseja solicitar a impressão da fatura ${invoice.number}?`
@@ -266,15 +266,15 @@ export class InvoicePage implements OnInit, OnDestroy {
             Swal.close();
 
             if (response.isSuccess) {
+              console.log(response)
 
               const invoiceIndex = this.invoices.findIndex(inv => inv.id === invoice.id);
               if (invoiceIndex !== -1) {
-                this.invoices[invoiceIndex].status = 'Printing';
+                this.invoices[invoiceIndex].status = 'Validando..';
               }
 
-              this.forceRefresh();
             } else {
-              if (response.errors != undefined)
+              if (response.errors !== undefined)
               response.errors.forEach(erro => {
                 this.showAlert(
                 erro,
@@ -284,20 +284,44 @@ export class InvoicePage implements OnInit, OnDestroy {
               });
             }
           },
-          error: (err: any) => {
+          error: async (err: any) => {
             Swal.close();
-            if (err.error.errors != undefined)
-              err.error.errors.forEach((er: any) => {
-                this.showAlert(
-                er,
-                true,
-                '❌ Erro'
-              );
+            if (err.error.errors !== undefined) {
+              const invoiceIndex = this.invoices.findIndex(inv => inv.id === invoice.id);
+              if (invoiceIndex !== -1) {
+                this.invoices[invoiceIndex].status = 'Validando..';
+              }
+              
+              const errors: string[] = err.error.errors;
+              console.log(errors)
+
+              const allErrors = errors.join('<br>');
+              await this.delay(3000)
+
+              Swal.fire({
+                icon: 'error',
+                title: '⚠️ Notificação',
+                html: allErrors,
+                showConfirmButton: true
               });
+
+          this.loadData();
+            }
           }
         });
       }
     });
+  }
+
+  getStatusText(status: string): string {
+    const map: Record<string, string> = {
+      Pending: 'Pendente',
+      OutOfStock: 'Cancelado por falta de estoque',
+      ValidationRequested: 'Validando',
+      Printed: 'Impresso'
+    };
+
+    return map[status] || status;
   }
 
   private forceRefresh() {

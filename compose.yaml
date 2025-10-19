@@ -95,8 +95,45 @@
         condition: service_started
       stockservice.api:
         condition: service_started
+      customerservice.api:
+        condition: service_started
     volumes:
       - ./src:/app/src
+
+  customerservice.api:
+    image: customerservice.api
+    build:
+      context: .
+      dockerfile: src/CustomerService/CustomerService.Api/Dockerfile.dev
+    ports:
+      - "5003:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=${CUSTOMER_DEFAULT_CONNECTION}
+      - Cors__PolicyName=${CUSTOMER_CORS_POLICYNAME}
+      - Cors__Origins=${CUSTOMER_CORS_ORIGINS}
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      customerservice.db:
+        condition: service_healthy
+
+  customerservice.db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${CUSTOMER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${CUSTOMER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${CUSTOMER_POSTGRES_DB}
+    ports:
+      - "${CUSTOMER_POSTGRES_PORT}:5432"
+    volumes:
+      - customerpgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${CUSTOMER_POSTGRES_USER} -d ${CUSTOMER_POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -114,8 +151,27 @@
       interval: 5s
       retries: 5
       timeout: 5s
+      
+  angular.app:
+    image: angular.app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: [ "npm", "run", "start" ]
+    depends_on:
+      gateway.api:
+        condition: service_started
+
 
 volumes:
   stockpgdata:
   rabbitmqdata:
   invoicepgdata:
+  customerpgdata:

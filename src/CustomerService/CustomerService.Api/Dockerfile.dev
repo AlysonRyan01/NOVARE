@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+WORKDIR /app
+
+COPY ["src/CustomerService/CustomerService.Api/CustomerService.Api.csproj", "src/CustomerService/CustomerService.Api/"]
+COPY ["src/SharedService/SharedService.Shared/SharedService.Shared.csproj", "src/SharedService/SharedService.Shared/"]
+COPY ["src/CustomerService/CustomerService.Application/CustomerService.Application.csproj", "src/CustomerService/CustomerService.Application/"]
+COPY ["src/CustomerService/CustomerService.Domain/CustomerService.Domain.csproj", "src/CustomerService/CustomerService.Domain/"]
+COPY ["src/CustomerService/CustomerService.Infrastructure/CustomerService.Infrastructure.csproj", "src/CustomerService/CustomerService.Infrastructure/"]
+
+RUN dotnet restore "src/CustomerService/CustomerService.Api/CustomerService.Api.csproj"
+
+COPY . .
+
+WORKDIR "/app/src/CustomerService/CustomerService.Api"
+
+RUN dotnet build "CustomerService.Api.csproj" -c Debug
+
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet", "run", "--urls", "http://0.0.0.0:5000"]
+

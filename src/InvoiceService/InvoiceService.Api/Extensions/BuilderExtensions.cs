@@ -2,11 +2,9 @@ using FluentValidation;
 using InvoiceService.Application.Commands.Invoices;
 using InvoiceService.Application.Services;
 using InvoiceService.Application.Validations.Commands.Invoices;
-using InvoiceService.Domain.Repositories.Customers;
 using InvoiceService.Domain.Repositories.Invoices;
 using InvoiceService.Infrastructure.Consumers;
 using InvoiceService.Infrastructure.Data;
-using InvoiceService.Infrastructure.Repositories.Customers;
 using InvoiceService.Infrastructure.Repositories.Invoices;
 using InvoiceService.Infrastructure.Services;
 using MassTransit;
@@ -80,8 +78,6 @@ public static class BuilderExtensions
     {
         builder.Services.AddScoped<IInvoiceCommandRepository, InvoiceCommandRepository>();
         builder.Services.AddScoped<IInvoiceQueryRepository, InvoiceQueryRepository>();
-        builder.Services.AddScoped<ICustomerCommandRepository, CustomerCommandRepository>();
-        builder.Services.AddScoped<ICustomerQueryRepository, CustomerQueryRepository>();
     }
 
     public static void AddFluentValidation(this WebApplicationBuilder builder)

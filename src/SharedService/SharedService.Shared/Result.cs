@@ -41,3 +41,39 @@ public class Result<T>
         return new Result<T>(errors);
     }
 }
+
+public class Result
+{
+    public bool IsSuccess { get; private set; }
+    public IEnumerable<string>? Errors { get; private set; }
+    
+    [JsonConstructor]
+    public Result(bool isSuccess, IEnumerable<string>? errors)
+    {
+        IsSuccess = isSuccess;
+        Errors = errors;
+    }
+
+    
+    private Result()
+    {
+        IsSuccess = true;
+        Errors = null;
+    }
+
+    private Result(IEnumerable<string> errors)
+    {
+        IsSuccess = false;
+        Errors = errors;
+    }
+
+    public static Result Ok()
+    {
+        return new Result();
+    }
+
+    public static Result Fail(IEnumerable<string> errors)
+    {
+        return new Result(errors);
+    }
+}

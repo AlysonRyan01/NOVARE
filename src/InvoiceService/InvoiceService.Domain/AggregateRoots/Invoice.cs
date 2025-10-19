@@ -17,7 +17,6 @@ public class Invoice : AggregateRoot
     public List<InvoiceItem> Items { get; internal set; } = new();
     
     public Guid CustomerId { get; private set; }
-    public Customer Customer { get; private set; } = null!;
     
     public decimal Total => Items.Sum(x => x.TotalPrice);
     public DateTime CreatedAt { get; internal set; }

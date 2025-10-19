@@ -17,7 +17,7 @@ namespace InvoiceService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -64,18 +64,6 @@ namespace InvoiceService.Infrastructure.Migrations
                     b.ToTable("Invoices", (string)null);
                 });
 
-            modelBuilder.Entity("InvoiceService.Domain.Entities.Customer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("Id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Customers", (string)null);
-                });
-
             modelBuilder.Entity("InvoiceService.Domain.Entities.InvoiceItem", b =>
                 {
                     b.Property<Guid>("InvoiceId")
@@ -109,12 +97,6 @@ namespace InvoiceService.Infrastructure.Migrations
 
             modelBuilder.Entity("InvoiceService.Domain.AggregateRoots.Invoice", b =>
                 {
-                    b.HasOne("InvoiceService.Domain.Entities.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.OwnsOne("InvoiceService.Domain.ValueObjects.Invoices.Number", "Number", b1 =>
                         {
                             b1.Property<Guid>("InvoiceId")
@@ -137,104 +119,7 @@ namespace InvoiceService.Infrastructure.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
-                    b.Navigation("Customer");
-
                     b.Navigation("Number")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("InvoiceService.Domain.Entities.Customer", b =>
-                {
-                    b.OwnsOne("InvoiceService.Domain.ValueObjects.Customers.Document", "Document", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("character varying(20)")
-                                .HasColumnName("Document");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.HasIndex("Value");
-
-                            b1.ToTable("Customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsOne("InvoiceService.Domain.ValueObjects.Customers.Email", "Email", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(255)
-                                .HasColumnType("character varying(255)")
-                                .HasColumnName("Email");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.HasIndex("Value");
-
-                            b1.ToTable("Customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsOne("InvoiceService.Domain.ValueObjects.Customers.Name", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
-                                .HasColumnName("Name");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.ToTable("Customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsOne("InvoiceService.Domain.ValueObjects.Customers.Phone", "Phone", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("character varying(20)")
-                                .HasColumnName("Phone");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.ToTable("Customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.Navigation("Document")
-                        .IsRequired();
-
-                    b.Navigation("Email")
-                        .IsRequired();
-
-                    b.Navigation("Name")
-                        .IsRequired();
-
-                    b.Navigation("Phone")
                         .IsRequired();
                 });
 

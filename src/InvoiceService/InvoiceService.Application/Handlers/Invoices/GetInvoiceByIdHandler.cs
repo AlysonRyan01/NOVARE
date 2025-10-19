@@ -1,5 +1,4 @@
 using FluentValidation;
-using InvoiceService.Application.Mappers;
 using InvoiceService.Application.Mappers.Invoices;
 using InvoiceService.Application.Queries.Invoices;
 using InvoiceService.Domain.Repositories.Invoices;
@@ -14,28 +13,40 @@ public class GetInvoiceByIdHandler : IRequestHandler<GetByIdQuery, Result<Invoic
     private readonly IInvoiceQueryRepository _invoiceQueryRepository;
     private readonly IValidator<GetByIdQuery> _validator;
 
-    public GetInvoiceByIdHandler(IInvoiceQueryRepository invoiceQueryRepository,  IValidator<GetByIdQuery> validator)
+    public GetInvoiceByIdHandler(IInvoiceQueryRepository invoiceQueryRepository, IValidator<GetByIdQuery> validator)
     {
         _invoiceQueryRepository = invoiceQueryRepository;
         _validator = validator;
     }
 
-    public async Task<Result<InvoiceDto>> Handle(
-        GetByIdQuery request, 
-        CancellationToken cancellationToken)
+    public async Task<Result<InvoiceDto>> Handle(GetByIdQuery request, CancellationToken cancellationToken)
+    {
+        var validationResult = await ValidateRequestAsync(request, cancellationToken);
+        if (!validationResult.IsSuccess)
+            return Result<InvoiceDto>.Fail(validationResult.Errors!);
+
+        var invoiceResult = await LoadInvoiceAsync(request.Id);
+        if (!invoiceResult.IsSuccess)
+            return Result<InvoiceDto>.Fail(invoiceResult.Errors!);
+
+        return Result<InvoiceDto>.Ok(invoiceResult.Value!.ToDto());
+    }
+
+    private async Task<Result> ValidateRequestAsync(GetByIdQuery request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if  (!validationResult.IsValid)
-            return Result<InvoiceDto>.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
-        
-        var invoiceResult = await _invoiceQueryRepository.GetByIdAsync(request.Id);
+        if (!validationResult.IsValid)
+            return Result.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
+
+        return Result.Ok();
+    }
+
+    private async Task<Result<Domain.AggregateRoots.Invoice>> LoadInvoiceAsync(Guid id)
+    {
+        var invoiceResult = await _invoiceQueryRepository.GetByIdAsync(id);
         if (!invoiceResult.IsSuccess || invoiceResult.Value == null)
-            return Result<InvoiceDto>.Fail(invoiceResult.Errors!);
-        
-        var invoice = invoiceResult.Value;
+            return Result<Domain.AggregateRoots.Invoice>.Fail(invoiceResult.Errors!);
 
-        var invoiceDto = invoice.ToDto();
-
-        return Result<InvoiceDto>.Ok(invoiceDto);
+        return Result<Domain.AggregateRoots.Invoice>.Ok(invoiceResult.Value);
     }
 }

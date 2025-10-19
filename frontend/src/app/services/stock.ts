@@ -1,4 +1,3 @@
-// services/stock.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,8 +7,7 @@ import {
   UpdateProductDto,
   IncreaseStockRequest,
   DecreaseStockRequest,
-  ApiResponse,
-  PagedResponse
+  ApiResponse
 } from '../models/dtos.model';
 
 @Injectable({

@@ -25,13 +25,11 @@ export class StockComponent implements OnInit {
     quantity: 0
   };
 
-  // Modal controls
   showStockModal = false;
   stockModalType: 'increase' | 'decrease' = 'increase';
   selectedProductId: string = '';
   stockQuantity: number = 0;
 
-  // Edit modal
   showEditModal = false;
   editingProduct: UpdateProductDto = {
     id: '',
@@ -106,7 +104,6 @@ export class StockComponent implements OnInit {
         if (res.isSuccess && res.value) {
           this.resetNewProductForm();
           this.showMessage('Produto criado com sucesso!');
-          // Recarrega a lista completa da API
           this.loadProducts();
         } else {
           if (res.errors) {
@@ -164,7 +161,6 @@ export class StockComponent implements OnInit {
         if (res.isSuccess && res.value) {
           this.closeEditModal();
           this.showMessage('Produto atualizado com sucesso!');
-          // Recarrega a lista completa da API
           this.loadProducts();
         } else {
           if (res.errors) {
@@ -272,7 +268,6 @@ export class StockComponent implements OnInit {
           if (res.isSuccess && res.value) {
             this.showMessage(`Estoque aumentado em ${this.stockQuantity} unidades!`);
             this.closeStockModal();
-            // Recarrega a lista completa da API
             this.loadProducts();
           } else {
             if (res.errors) {
@@ -288,7 +283,6 @@ export class StockComponent implements OnInit {
         }
       });
     } else {
-      // Decrease stock
       if (this.stockQuantity > product.stockQuantity) {
         this.showMessage('Quantidade indisponível em estoque', true);
         return;
@@ -299,7 +293,6 @@ export class StockComponent implements OnInit {
           if (res.isSuccess && res.value) {
             this.showMessage(`Estoque reduzido em ${this.stockQuantity} unidades!`);
             this.closeStockModal();
-            // Recarrega a lista completa da API
             this.loadProducts();
           } else {
             if (res.errors) {

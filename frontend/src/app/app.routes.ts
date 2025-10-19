@@ -7,5 +7,5 @@ export const routes: Routes = [
   { path: 'clientes', component: CustomersComponent },
   { path: 'estoque', component: StockComponent },
   { path: 'notas-fiscais', component: InvoicePage },
-  { path: '', redirectTo: 'customers', pathMatch: 'full' },
+  { path: '', redirectTo: 'clientes', pathMatch: 'full' },
 ];

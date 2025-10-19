@@ -27,34 +27,66 @@ public class DecreaseStockHandler : IRequestHandler<DecreaseStockCommand, Result
         _validator = validator;
     }
 
-    public async Task<Result<Product>> Handle(
-        DecreaseStockCommand request, 
-        CancellationToken cancellationToken = default)
+    public async Task<Result<Product>> Handle(DecreaseStockCommand request, CancellationToken cancellationToken = default)
+    {
+        var validationResult = ValidateRequest(request);
+        if (!validationResult.IsSuccess)
+            return Result<Product>.Fail(validationResult.Errors!);
+
+        var productResult = await GetProductAsync(request.ProductId, cancellationToken);
+        if (!productResult.IsSuccess || productResult.Value == null)
+            return Result<Product>.Fail(productResult.Errors!);
+
+        var product = productResult.Value;
+
+        var decreaseResult = DecreaseStock(product, request.Quantity);
+        if (!decreaseResult.IsSuccess)
+            return Result<Product>.Fail(decreaseResult.Errors!);
+
+        return await SaveProductAsync(product, cancellationToken);
+    }
+
+    private Result ValidateRequest(DecreaseStockCommand request)
     {
         var validationResult = _validator.Validate(request);
-        if  (!validationResult.IsValid)
-            return Result<Product>.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
+        if (!validationResult.IsValid)
+            return Result.Fail(validationResult.Errors.Select(x => x.ErrorMessage).ToList());
 
+        return Result.Ok();
+    }
+
+    private async Task<Result<Product>> GetProductAsync(
+        Guid productId, 
+        CancellationToken cancellationToken)
+    {
+        var exists = await _productQueryRepository.GetByIdAsync(productId, cancellationToken);
+        if (!exists.IsSuccess || exists.Value == null)
+            return Result<Product>.Fail(exists.Errors ?? ["Produto não encontrado"]);
+
+        return Result<Product>.Ok(exists.Value);
+    }
+
+    private Result DecreaseStock(Product product, int quantity)
+    {
+        var result = product.DecreaseStock(quantity);
+        if (!result.IsSuccess)
+            return Result.Fail(result.Errors!);
+
+        return Result.Ok();
+    }
+
+    private async Task<Result<Product>> SaveProductAsync(Product product, CancellationToken cancellationToken)
+    {
         try
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            
-            var exists = await _productQueryRepository.GetByIdAsync(request.ProductId);
-            if (!exists.IsSuccess || exists.Value == null)
-                return Result<Product>.Fail(exists.Errors ?? ["Produto não encontrado"]);
-            
-            var product = exists.Value;
-            
-            var decreaseResult = product.DecreaseStock(request.Quantity);
-            if (!decreaseResult.IsSuccess)
-                return Result<Product>.Fail(decreaseResult.Errors!);
-            
+
             var updateResult = await _productCommandRepository.UpdateAsync(product, cancellationToken);
             if (!updateResult.IsSuccess)
                 return Result<Product>.Fail(updateResult.Errors!);
-            
+
             await _unitOfWork.CommitAsync(cancellationToken);
-            
+
             return Result<Product>.Ok(product);
         }
         catch

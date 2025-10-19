@@ -19,7 +19,6 @@ public class InvoiceQueryRepository : IInvoiceQueryRepository
     public async Task<Result<Invoice?>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var invoice = await _context.Invoices
-            .Include(i => i.Customer)
             .Include(i => i.Items)
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
 
@@ -29,7 +28,6 @@ public class InvoiceQueryRepository : IInvoiceQueryRepository
     public async Task<Result<Invoice?>> GetByNumberAsync(string number, CancellationToken cancellationToken = default)
     {
         var invoice = await _context.Invoices
-            .Include(i => i.Customer)
             .Include(i => i.Items)
             .FirstOrDefaultAsync(i => i.Number.Value == number, cancellationToken);
 
@@ -39,7 +37,6 @@ public class InvoiceQueryRepository : IInvoiceQueryRepository
     public async Task<Result<List<Invoice>>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default)
     {
         var invoices = await _context.Invoices
-            .Include(i => i.Customer)
             .Include(i => i.Items)
             .Where(i => i.CustomerId == customerId)
             .OrderByDescending(i => i.CreatedAt)
@@ -51,7 +48,6 @@ public class InvoiceQueryRepository : IInvoiceQueryRepository
     public async Task<Result<List<Invoice>>> GetByStatusAsync(EInvoiceStatus status, CancellationToken cancellationToken = default)
     {
         var invoices = await _context.Invoices
-            .Include(i => i.Customer)
             .Include(i => i.Items)
             .Where(i => i.Status == status)
             .OrderByDescending(i => i.CreatedAt)
@@ -68,7 +64,6 @@ public class InvoiceQueryRepository : IInvoiceQueryRepository
         var skip = (pageNumber - 1) * pageSize;
 
         var invoices = await _context.Invoices
-            .Include(i => i.Customer)
             .Include(i => i.Items)
             .OrderByDescending(i => i.CreatedAt)
             .Skip(skip)

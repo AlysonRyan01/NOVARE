@@ -1,6 +1,3 @@
-
-
-// Customer
 export interface CustomerDto {
   id: string;
   name: string;
@@ -16,7 +13,6 @@ export interface CreateCustomerDto {
   document: string;
 }
 
-// Product
 export interface ProductDto {
   id: string;
   name: string;
@@ -41,7 +37,6 @@ export interface UpdateProductDto {
   price: number;
 }
 
-// Invoice Item
 export interface InvoiceItemDto {
   productId: string;
   productName: string;
@@ -49,7 +44,6 @@ export interface InvoiceItemDto {
   unitPrice: number;
 }
 
-// Invoice
 export interface InvoiceDto {
   id: string;
   number: string;
@@ -80,7 +74,6 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Para respostas de lista
 export interface PagedResponse<T> {
   items: T[];
   totalCount: number;

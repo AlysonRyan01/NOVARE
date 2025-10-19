@@ -15,12 +15,8 @@ public class EventPublisher : IEventPublisher
     }
     
     public async Task PublishStockReservedAsync(StockReservedEvent @event)
-    {
-        await _publishEndpoint.Publish(@event);
-    }
+        => await _publishEndpoint.Publish(@event);
 
     public async Task PublishOutOfStockAsync(OutOfStockEvent @event)
-    {
-        await _publishEndpoint.Publish(@event);
-    }
+        => await _publishEndpoint.Publish(@event);
 }

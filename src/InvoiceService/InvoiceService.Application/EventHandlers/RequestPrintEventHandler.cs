@@ -20,36 +20,29 @@ public class RequestPrintEventHandler : INotificationHandler<InvoicePrintingRequ
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task Handle(InvoicePrintingRequestedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(InvoicePrintingRequestedEvent notification, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            _logger.LogInformation(
-                "Publicando evento VerifyProductsStockEvent para Invoice: {InvoiceId}",
-                notification.InvoiceId);
-            
-            var invoiceItems = notification.Items.Select(item => new InvoiceItemRequest(
-                item.ProductId,
-                item.Quantity
-            ));
-            
-            var verifyStockEvent = new VerifyProductsStockEvent(
-                notification.InvoiceId, 
-                invoiceItems);
-            
-            await _publishEndpoint.Publish(verifyStockEvent, cancellationToken);
+        _logger.LogInformation("Iniciando publicação do evento VerifyProductsStockEvent para Invoice: {InvoiceId}", notification.InvoiceId);
 
-            _logger.LogInformation(
-                "Evento VerifyProductsStockEvent publicado com sucesso para Invoice: {InvoiceId}",
-                notification.InvoiceId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "Erro ao publicar VerifyProductsStockEvent para Invoice: {InvoiceId}",
-                notification.InvoiceId);
-            throw;
-        }
+        var verifyStockEvent = BuildVerifyStockEvent(notification);
+
+        await PublishEventAsync(verifyStockEvent, cancellationToken);
+
+        _logger.LogInformation("Evento VerifyProductsStockEvent publicado com sucesso para Invoice: {InvoiceId}", notification.InvoiceId);
+    }
+
+    private static VerifyProductsStockEvent BuildVerifyStockEvent(InvoicePrintingRequestedEvent notification)
+    {
+        var invoiceItems = notification.Items
+            .Select(item => new InvoiceItemRequest(item.ProductId, item.Quantity));
+
+        return new VerifyProductsStockEvent(notification.InvoiceId, invoiceItems);
+    }
+
+    private async Task PublishEventAsync(
+        VerifyProductsStockEvent verifyStockEvent, 
+        CancellationToken cancellationToken)
+    {
+        await _publishEndpoint.Publish(verifyStockEvent, cancellationToken);
     }
 }

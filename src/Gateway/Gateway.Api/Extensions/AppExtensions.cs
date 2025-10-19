@@ -9,6 +9,7 @@ public static class AppExtensions
     {
         app.MapStockEndpoints();
         app.MapInvoiceGatewayEndpoints();
+        app.MapCustomerGatewayEndpoints();
     }
     
     public static void AddSwagger(this WebApplication app)

@@ -318,6 +318,17 @@
   }
 }
 
+.status {
+  display: flex;
+  justify-self: start;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background-color: rgb(100, 90, 243);
+  padding: 10px 40px;
+  border-radius: 20px;
+}
+
 /* --- Lista de Faturas --- */
 .invoices-section {
   margin-top: 3rem;

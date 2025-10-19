@@ -42,12 +42,6 @@ public class InvoiceMap : IEntityTypeConfiguration<Invoice>
             .HasColumnName("CustomerId")
             .IsRequired();
         
-        builder.HasOne(i => i.Customer)
-            .WithMany()
-            .HasForeignKey(i => i.CustomerId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Collection de Items (já mapeado no InvoiceItemMap)
         builder.HasMany(i => i.Items)
             .WithOne(ii => ii.Invoice)
             .HasForeignKey(ii => ii.InvoiceId)

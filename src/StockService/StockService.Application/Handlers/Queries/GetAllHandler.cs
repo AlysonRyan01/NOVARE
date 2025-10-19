@@ -20,25 +20,31 @@ public class GetAllHandler : IRequestHandler<GetAllQuery, Result<IEnumerable<Pro
         _validator = validator;
     }
 
-    public async Task<Result<IEnumerable<Product>>> Handle(
-        GetAllQuery request, 
-        CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<Product>>> Handle(GetAllQuery request, CancellationToken cancellationToken = default)
     {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-            return Result<IEnumerable<Product>>.Fail(
-                validationResult.Errors.Select(x => x.ErrorMessage).ToList());
-            
-        var result = await _productQueryRepository.GetAllAsync(
-            pageNumber: request.PageNumber,
-            pageSize: request.PageSize,
-            cancellationToken: cancellationToken);
-            
+        var validationResult = await ValidateRequestAsync(request, cancellationToken);
+        if (!validationResult.IsSuccess)
+            return Result<IEnumerable<Product>>.Fail(validationResult.Errors!);
+
+        return await GetProductsAsync(request, cancellationToken);
+    }
+
+    private async Task<Result> ValidateRequestAsync(GetAllQuery request, CancellationToken cancellationToken)
+    {
+        var result = await _validator.ValidateAsync(request, cancellationToken);
+        if (!result.IsValid)
+            return Result.Fail(result.Errors.Select(x => x.ErrorMessage).ToList());
+
+        return Result.Ok();
+    }
+
+    private async Task<Result<IEnumerable<Product>>> GetProductsAsync(GetAllQuery request, CancellationToken cancellationToken)
+    {
+        var result = await _productQueryRepository.GetAllAsync(request.PageNumber, request.PageSize, cancellationToken);
+
         if (!result.IsSuccess)
             return Result<IEnumerable<Product>>.Fail(result.Errors ?? ["Erro ao buscar produtos"]);
-            
-        var products = result.Value ?? Enumerable.Empty<Product>();
-            
-        return Result<IEnumerable<Product>>.Ok(products);
+
+        return Result<IEnumerable<Product>>.Ok(result.Value ?? Enumerable.Empty<Product>());
     }
 }

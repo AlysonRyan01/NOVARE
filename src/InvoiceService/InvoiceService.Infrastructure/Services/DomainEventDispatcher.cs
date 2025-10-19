@@ -24,29 +24,39 @@ public class DomainEventDispatcher : IDomainEventDispatcher
 
     public async Task DispatchEventsAsync(CancellationToken cancellationToken = default)
     {
-        var entities = _context.ChangeTracker
-            .Entries<AggregateRoot>()
-            .Where(e => e.Entity.DomainEvents.Any())
-            .Select(e => e.Entity)
-            .ToList();
+        var entities = GetEntitiesWithEvents();
 
         foreach (var entity in entities)
         {
             var events = entity.DomainEvents.ToArray();
             entity.ClearDomainEvents();
-            
+
             foreach (var domainEvent in events)
             {
-                try
-                {
-                    await _mediator.Publish(domainEvent, cancellationToken);
-                    _logger.LogDebug("Domain event published: {EventType}", domainEvent.GetType().Name);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Erro na publicação do evento de dominio: {EventType}", domainEvent.GetType().Name);
-                }
+                await PublishEventAsync(domainEvent, cancellationToken);
             }
+        }
+    }
+
+    private IEnumerable<AggregateRoot> GetEntitiesWithEvents()
+    {
+        return _context.ChangeTracker
+            .Entries<AggregateRoot>()
+            .Where(e => e.Entity.DomainEvents.Any())
+            .Select(e => e.Entity)
+            .ToList();
+    }
+
+    private async Task PublishEventAsync(INotification domainEvent, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _mediator.Publish(domainEvent, cancellationToken);
+            _logger.LogDebug("Domain event published: {EventType}", domainEvent.GetType().Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro na publicação do evento de domínio: {EventType}", domainEvent.GetType().Name);
         }
     }
 }

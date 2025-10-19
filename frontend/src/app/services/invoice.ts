@@ -5,8 +5,7 @@ import {
   InvoiceDto,
   CreateInvoiceDto,
   UpdateInvoiceDto,
-  ApiResponse,
-  PagedResponse
+  ApiResponse
 } from '../models/dtos.model';
 
 @Injectable({
