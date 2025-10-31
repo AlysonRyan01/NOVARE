@@ -1,0 +1,33 @@
+.toolbar-links {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 2rem;
+  color: rgb(61, 110, 112);
+}
+
+.mat-toolbar {
+  background-color: rgb(218, 253, 238);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.toolbar-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 80%;
+}
