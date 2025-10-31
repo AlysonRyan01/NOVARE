@@ -8,5 +8,5 @@ import { CreateProductCard } from '../../components/create-product-card/create-p
   styleUrl: './create-product.scss',
 })
 export class CreateProduct {
-
+  
 }

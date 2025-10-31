@@ -5,13 +5,24 @@ import {MatCardModule} from '@angular/material/card'
 import { MatButtonModule } from '@angular/material/button';
 import { ProductModel } from '../../models/productModel';
 import { MessageService } from 'primeng/api';
+import { MatIcon } from '@angular/material/icon';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NgxMaskDirective, NgxMaskPipe } from 'ngx-mask';
 
 @Component({
   selector: 'app-create-product-card',
   imports: [
     MatCardModule,
-    MatButtonModule
-  ],
+    MatButtonModule,
+    MatIcon,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    NgxMaskDirective
+],
   templateUrl: './create-product-card.html',
   styleUrl: './create-product-card.scss',
 })
@@ -24,8 +35,8 @@ export class CreateProductCard {
     id: '',
     name: '',
     description: '',
-    price: 0,
-    stockQuantity: 0,
+    price: null,
+    stockQuantity: null,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -44,8 +55,8 @@ export class CreateProductCard {
     this._productService.createProduct(this.productInput).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (!response.IsSuccess) {
-          this.errorSnackBar(response.Errors[0]);
+        if (!response.isSuccess) {
+          this.errorSnackBar(response.errors[0]);
           return;
         }
 
@@ -108,22 +119,30 @@ export class CreateProductCard {
       }
     }
 
-    if (inputModel.price <= 0) {
-      errors.push("O preço deve ser maior que zero");
+    if (inputModel.price == null) {
+      errors.push("O preço é obrigatório");
     } else {
-      if (inputModel.price > 999999.99) {
+      if (inputModel.price <= 0) {
+        errors.push("O preço deve ser maior que zero");
+      } else if (inputModel.price > 999999.99) {
         errors.push("O preço não pode exceder 999.999,99");
       }
 
-      if (!/^\d+(\.\d{1,2})?$/.test(inputModel.price.toString())) {
+      // Verifica no máximo 2 casas decimais
+      const priceStr = inputModel.price.toString();
+      if (!/^\d+(\.\d{1,2})?$/.test(priceStr)) {
         errors.push("O preço deve ter no máximo 2 casas decimais");
       }
     }
 
-    if (inputModel.stockQuantity < 0) {
-      errors.push("A quantidade em estoque não pode ser negativa");
-    } else if (inputModel.stockQuantity > 100000) {
-      errors.push("A quantidade não pode exceder 100.000 unidades");
+    if (inputModel.stockQuantity == null) {
+      errors.push("A quantidade em estoque é obrigatória");
+    } else {
+      if (inputModel.stockQuantity < 0) {
+        errors.push("A quantidade em estoque não pode ser negativa");
+      } else if (inputModel.stockQuantity > 100000) {
+        errors.push("A quantidade não pode exceder 100.000 unidades");
+      }
     }
 
     return errors;

@@ -1,5 +1,5 @@
 export interface ApiResponse<T> {
-  IsSuccess: boolean,
-  Value: T,
-  Errors: string[]
+  isSuccess: boolean,
+  value: T,
+  errors: string[]
 }

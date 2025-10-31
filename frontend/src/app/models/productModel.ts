@@ -2,8 +2,8 @@ export interface ProductModel {
   id: string;
   name: string;
   description: string;
-  price: number;
-  stockQuantity: number;
+  price?: number | null;
+  stockQuantity?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
