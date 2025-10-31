@@ -20,7 +20,9 @@ public class RequestPrintEventHandler : INotificationHandler<InvoicePrintingRequ
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task Handle(InvoicePrintingRequestedEvent notification, CancellationToken cancellationToken = default)
+    public async Task Handle(
+        InvoicePrintingRequestedEvent notification, 
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Iniciando publicação do evento VerifyProductsStockEvent para Invoice: {InvoiceId}", notification.InvoiceId);
 

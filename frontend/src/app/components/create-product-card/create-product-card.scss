@@ -1,0 +1,36 @@
+.card-container {
+  min-height: 600px;
+  min-width: 400px;
+  max-width: 800px;
+  width: 50vw;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 2rem;
+  color: #575757;
+}
+
+.icon {
+  color: #006a6a;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  padding: 40px;
+}
+
+.card-content {
+  display: flex;
+  padding: 40px;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

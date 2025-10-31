@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './components/header.component/header.component';
+import { Header } from './components/header/header';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'novare-root',
-  imports: [RouterOutlet, HeaderComponent],
+  selector: 'app-root',
+  imports: [RouterOutlet, Header, ToastModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

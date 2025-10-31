@@ -38,6 +38,7 @@ public class IncreaseStockHandler : IRequestHandler<IncreaseStockCommand, Result
             return Result<Product>.Fail(productResult.Errors!);
 
         var product = productResult.Value!;
+        
         var increaseResult = product.IncreaseStock(request.Quantity);
         if (!increaseResult.IsSuccess)
             return Result<Product>.Fail(increaseResult.Errors!);
