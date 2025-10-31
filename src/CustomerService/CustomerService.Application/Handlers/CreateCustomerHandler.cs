@@ -54,7 +54,9 @@ public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Resu
         return Result<bool>.Ok(true);
     }
 
-    private async Task<Result<CustomerDto>> SaveCustomerAsync(Customer customer, CancellationToken cancellationToken = default)
+    private async Task<Result<CustomerDto>> SaveCustomerAsync(
+        Customer customer, 
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -70,7 +72,7 @@ public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Resu
         catch
         {
             await _unitOfWork.RollbackAsync(cancellationToken);
-            return Result<CustomerDto>.Fail(["E-mail ou CPF já cadastrados"]);
+            return Result<CustomerDto>.Fail(["Erro ao criar o cliente"]);
         }
     }
 }

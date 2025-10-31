@@ -69,7 +69,9 @@ public class RequestPrintHandler : IRequestHandler<RequestPrintCommand, Result<I
         return Result<Domain.AggregateRoots.Invoice>.Ok(invoiceResult.Value);
     }
 
-    private async Task<Result<InvoiceDto>> PersistInvoiceAsync(Domain.AggregateRoots.Invoice invoice, CancellationToken cancellationToken)
+    private async Task<Result<InvoiceDto>> PersistInvoiceAsync(
+        Domain.AggregateRoots.Invoice invoice, 
+        CancellationToken cancellationToken)
     {
         try
         {
